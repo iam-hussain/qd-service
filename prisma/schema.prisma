@@ -1,0 +1,252 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // mongodb
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String          @id @default(uuid())
+  shortId          String          @unique
+  type             USER_TYPE       @default(CUSTOMER)
+  firstName        String
+  lastName         String?
+  email            String?
+  emailVerified    Boolean         @default(false)
+  phone            String?
+  phoneVerified    Boolean         @default(false)
+  username         String          @unique @default(uuid())
+  usernameAdded    Boolean         @default(false)
+  password         String?
+  passwordAdded    Boolean         @default(false)
+  salt             String?
+  address          Json?
+  image            Json?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  connections      UsersOnStores[]
+  orders           Order[]         @relation("orders")
+  bills            Bill[]          @relation("bills")
+  orderCreated     Order[]         @relation("createdBy")
+  ordersUpdated    Order[]         @relation("updatedBy")
+  itemsCreated     Item[]          @relation("createdBy")
+  itemsUpdated     Item[]          @relation("updatedBy")
+  billsCreated     Bill[]          @relation("biller")
+  productsDisabled Product[]       @relation("diabled")
+
+  @@unique([type, username])
+}
+
+enum USER_TYPE {
+  CUSTOMER
+  SELLER
+}
+
+model Store {
+  id          String          @id @default(uuid())
+  shortId     String          @unique
+  slug        String          @unique
+  prefix      String          @unique
+  name        String
+  deck        String?
+  email       String?
+  phone       String?
+  address     Json?
+  printHead   Json[]
+  printDeck   Json[]
+  printFooter Json[]
+  images      Json[]
+  tables      Json[]
+  taxes       Json[]
+  fees        Json[]
+  extra       Json            @default("{}")
+  connections UsersOnStores[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  categories  Category[]
+  products    Product[]
+  orders      Order[]
+  bills       Bill[]
+}
+
+model UsersOnStores {
+  roles      Json[]
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  store      Store    @relation(fields: [storeId], references: [id])
+  storeId    String
+  originated Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@id([storeId, userId])
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  shortId   String    @unique
+  name      String
+  deck      String?
+  position  Int       @default(0)
+  image     Json?
+  products  Product[]
+  store     Store     @relation(fields: [storeId], references: [id])
+  storeId   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id         String       @id @default(uuid())
+  shortId    String       @unique
+  name       String
+  deck       String?
+  price      Float        @default(0)
+  type       PRODUCT_TYPE @default(NON_VEG)
+  images     Json[]
+  store      Store        @relation(fields: [storeId], references: [id])
+  storeId    String
+  category   Category     @relation(fields: [categoryId], references: [id])
+  categoryId String
+  disabledBy User?        @relation("diabled", fields: [userId], references: [id])
+  disabledAt DateTime?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  items      Item[]
+  userId     String?
+}
+
+enum PRODUCT_TYPE {
+  VEG
+  NON_VEG
+  VEGAN
+}
+
+model Order {
+  id          String       @id @default(uuid())
+  shortId     String       @unique
+  type        ORDER_TYPE   @default(TAKE_AWAY)
+  status      ORDER_STATUS @default(DRAFT)
+  note        String?
+  table       Json         @default("{}")
+  taxes       Json[]
+  fees        Json[]
+  extra       Json         @default("{}")
+  completedAt DateTime?
+  deliveredAt DateTime?
+  customer    User?        @relation("orders", fields: [customerId], references: [id])
+  customerId  String?
+  createdBy   User?        @relation("createdBy", fields: [createdId], references: [id])
+  createdId   String?
+  createdAt   DateTime     @default(now())
+  updatedBy   User?        @relation("updatedBy", fields: [updatedId], references: [id])
+  updatedId   String?
+  updatedAt   DateTime     @updatedAt
+  store       Store        @relation(fields: [storeId], references: [id])
+  storeId     String
+  items       Item[]
+  bill        Bill?
+
+  @@unique([shortId, storeId])
+}
+
+enum ORDER_TYPE {
+  DINING
+  TAKE_AWAY
+  PICK_UP
+  DELIVERY
+  PLATFORM
+}
+
+enum ORDER_STATUS {
+  DRAFT
+  IN_PROGRESS
+  COMPLETED
+  DELIVERY_PENDING
+  DELIVERED
+}
+
+model Item {
+  id         String       @id @default(uuid())
+  title      String?
+  note       String?
+  type       PRODUCT_TYPE @default(NON_VEG)
+  price      Float        @default(0)
+  quantity   Int          @default(0)
+  total      Float        @default(0)
+  position   Int          @default(0)
+  placeAt    DateTime     @default(now())
+  placedAt   DateTime?
+  acceptedAt DateTime?
+  prepared   DateTime?
+  status     ITEM_STATUS  @default(PLACED)
+  product    Product      @relation(fields: [productId], references: [id])
+  productId  String
+  order      Order?       @relation(fields: [orderId], references: [id])
+  orderId    String?
+  createdBy  User?        @relation("createdBy", fields: [createdId], references: [id])
+  createdId  String?
+  createdAt  DateTime     @default(now())
+  updatedBy  User?        @relation("updatedBy", fields: [updatedId], references: [id])
+  updatedId  String?
+  updatedAt  DateTime     @updatedAt
+  bill       Bill?        @relation(fields: [billId], references: [id])
+  billId     String?
+}
+
+enum ITEM_STATUS {
+  SHEDULED
+  PLACED
+  ACCEPTED
+  PROGRESS
+  PREPARED
+}
+
+model Bill {
+  id         String       @id @default(uuid())
+  shortId    String
+  version    Int          @default(0)
+  type       ORDER_TYPE   @default(TAKE_AWAY)
+  note       String?
+  table      Json?
+  taxes      Json[]
+  fees       Json[]
+  extra      Json
+  totalItems Float        @default(0)
+  totalTaxes Float        @default(0)
+  totalFees  Float        @default(0)
+  subTotal   Float        @default(0)
+  grandTotal Float        @default(0)
+  printedAt  DateTime?
+  paidAt     DateTime?
+  paidWith   BILL_PAID_BY @default(WALLET)
+  customer   User?        @relation("bills", fields: [customerId], references: [id])
+  customerId String?
+  biller     User?        @relation("biller", fields: [billerId], references: [id])
+  billerId   String?
+  items      Item[]
+  order      Order        @relation(fields: [orderId], references: [id])
+  orderId    String       @unique
+  store      Store        @relation(fields: [storeId], references: [id])
+  storeId    String
+  deleted    Boolean      @default(false)
+  deletedAt  DateTime?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  @@unique([storeId, shortId, version])
+}
+
+enum BILL_PAID_BY {
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+  UPI
+  WALLET
+  DUE
+}

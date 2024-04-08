@@ -2,7 +2,7 @@ import { StatusCodes } from 'http-status-codes';
 
 import { User } from '@/api/user/model';
 import { userRepository } from '@/api/user/repository';
-import { ResponseStatus, ServiceResponse } from '@/common/models/service-response';
+import { ResponseStatus, ServiceResponse } from '@/models/service-response';
 import { logger } from '@/server';
 
 export const userService = {

@@ -2,7 +2,7 @@ import express, { Request, Response, Router } from 'express';
 
 import { GetUserSchema } from '@/api/user/model';
 import { userService } from '@/api/user/service';
-import { handleServiceResponse, validateRequest } from '@/common/utils/http-handlers';
+import { handleServiceResponse, validateRequest } from '@/utils/http-handlers';
 
 export const userRouter: Router = (() => {
   const router = express.Router();

@@ -5,10 +5,10 @@ import { pino } from 'pino';
 
 import { healthCheckRouter } from '@/api/health-check';
 import { userRouter } from '@/api/user';
-import errorHandler from '@/common/middleware/error-handler';
-import rateLimiter from '@/common/middleware/rate-limiter';
-import requestLogger from '@/common/middleware/request-logger';
-import { env } from '@/common/utils/env-config';
+import errorHandler from '@/middleware/error-handler';
+import rateLimiter from '@/middleware/rate-limiter';
+import requestLogger from '@/middleware/request-logger';
+import { env } from '@/utils/env-config';
 
 const logger = pino({ name: 'server start' });
 const app: Express = express();

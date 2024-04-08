@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { ZodError, ZodSchema } from 'zod';
 
-import { ResponseStatus, ServiceResponse } from '@/common/models/service-response';
+import { ResponseStatus, ServiceResponse } from '@/models/service-response';
 
 export const handleServiceResponse = (serviceResponse: ServiceResponse<any>, response: Response) => {
   return response.status(serviceResponse.statusCode).send(serviceResponse);

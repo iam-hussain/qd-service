@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { commonValidations } from '@/common/utils/common-validation';
+import { commonValidations } from '@/utils/common-validation';
 
 export type User = z.infer<typeof UserSchema>;
 export const UserSchema = z.object({

@@ -1,7 +1,7 @@
 import { Request } from 'express';
 import { rateLimit } from 'express-rate-limit';
 
-import { env } from '@/common/utils/env-config';
+import { env } from '@/utils/env-config';
 import { logger } from '@/server';
 
 const rateLimiter = rateLimit({

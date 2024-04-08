@@ -1,8 +1,8 @@
 import express, { Request, Response, Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { ResponseStatus, ServiceResponse } from '@/common/models/service-response';
-import { handleServiceResponse } from '@/common/utils/http-handlers';
+import { ResponseStatus, ServiceResponse } from '@/models/service-response';
+import { handleServiceResponse } from '@/utils/http-handlers';
 
 export const healthCheckRouter: Router = (() => {
   const router = express.Router();
