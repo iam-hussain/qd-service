@@ -7,12 +7,14 @@ import { pino } from 'pino';
 import { authRouter } from '@/api/authentication';
 import { authTransformer } from '@/api/authentication/transfomer';
 import { healthCheckRouter } from '@/api/health-check';
+import { storeRouter } from '@/api/store';
 import { userRouter } from '@/api/user';
 import jwt from '@/libs/jwt';
 import errorHandler from '@/middleware/error-handler';
 import rateLimiter from '@/middleware/rate-limiter';
 import requestLogger from '@/middleware/request-logger';
 import { env } from '@/providers/env-config';
+import { RequestAuth } from '@/types';
 
 const logger = pino({ name: 'server start' });
 const app: Express = express();
@@ -32,34 +34,33 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(requestLogger());
 
 app.use((req: any, res, next) => {
-  const token = authTransformer.getToken(req as unknown as Request);
+  let auth: RequestAuth = {
+    hasToken: false,
+    isSeller: false,
+    hasStore: false,
+    storeId: '',
+    userId: '',
+    storeSlug: '',
+  };
+  const token = authTransformer.getToken(req);
   if (token) {
+    auth = {
+      ...auth,
+      hasToken: true,
+    };
     const decoded = jwt.decode(token);
+
     if (decoded) {
       const payload = authTransformer.extractToken(decoded);
 
-      req.auth = {
+      auth = {
+        ...auth,
         ...payload,
-        hasToken: true,
-      };
-    } else {
-      req.auth = {
-        hasToken: true,
-        isSeller: false,
-        hasStore: false,
-        storeId: null,
-        userId: null,
       };
     }
-  } else {
-    req.auth = {
-      hasToken: false,
-      isSeller: false,
-      hasStore: false,
-      storeId: null,
-      userId: null,
-    };
   }
+
+  req.auth = auth;
   console.log({ auth: req.auth });
   next();
 });
@@ -67,6 +68,7 @@ app.use((req: any, res, next) => {
 // Routes
 app.use('/api/authentication', authRouter);
 app.use('/api/health-check', healthCheckRouter);
+app.use('/api/store', storeRouter);
 app.use('/api/user', userRouter);
 
 // Error handlers

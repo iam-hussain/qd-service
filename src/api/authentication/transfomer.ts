@@ -1,4 +1,4 @@
-import { JWT_DECODE } from '@/types';
+import { JWT_DECODE, RequestAuth } from '@/types';
 
 export const authTransformer = {
   getToken: (req: any) => {
@@ -15,16 +15,18 @@ export const authTransformer = {
 
     return jwtToken;
   },
-  extractToken: (decoded: JWT_DECODE) => {
+  extractToken: (decoded: JWT_DECODE): RequestAuth => {
     const data = decoded.data || {};
     const type = data ? data.type : '';
     return {
-      ...data,
-      type,
+      // ...data,
+      // type,
+      hasToken: true,
       isSeller: data && Boolean(data.userId) && type === 'SELLER',
       hasStore: data && Boolean(data.storeId),
-      storeId: data.storeId || null,
+      storeId: data.storeId || '',
       userId: data.userId,
+      storeSlug: data.store || '',
     };
   },
 };

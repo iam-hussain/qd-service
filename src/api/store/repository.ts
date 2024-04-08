@@ -15,4 +15,11 @@ export const storeRepository = {
       },
     });
   },
+  findBySlug: async (slug: string) => {
+    return database.store.findUnique({
+      where: {
+        slug,
+      },
+    });
+  },
 };

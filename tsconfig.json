@@ -15,7 +15,8 @@
     "noPropertyAccessFromIndexSignature": false,
     "skipLibCheck": true,
     "ignoreDeprecations": "5.0",
-    "types": []
+    "types": [],
+    "typeRoots": ["./types"]
   },
   "extends": [],
   "exclude": ["node_modules"],

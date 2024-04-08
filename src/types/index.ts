@@ -42,12 +42,11 @@ export type StoreAdditionalType = {
   };
 };
 
-export type CustomRequest = Request & {
-  auth: {
-    hasToken: boolean;
-    isSeller: boolean;
-    hasStore: boolean;
-    storeId: string;
-    userId: string;
-  };
+export type RequestAuth = {
+  hasToken: boolean;
+  userId: string;
+  isSeller: boolean;
+  hasStore: boolean;
+  storeId: string;
+  storeSlug: string;
 };
