@@ -1,10 +1,13 @@
-import flatCache from "flat-cache";
-import dateTime from "./date-time";
+import flatCache from 'flat-cache';
 
-const cache = flatCache.load("orderId");
+import database from '@/providers/database';
+
+import dateTime from './date-time';
+
+const cache = flatCache.load('orderId');
 
 const getPadded = (value: number) => {
-  return value.toString().padStart(4, "0");
+  return value.toString().padStart(4, '0');
 };
 
 const generateOrderId = async (storeSlug: string) => {
@@ -32,11 +35,12 @@ const generateOrderId = async (storeSlug: string) => {
         shortId: true,
       },
       orderBy: {
-        shortId: "desc",
+        shortId: 'desc',
       },
     });
-    console.log("I am ed", { lastEntry });
-    const [_, id] = (lastEntry?.shortId || "").split("-");
+    console.log('I am ed', { lastEntry });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_, id] = (lastEntry?.shortId || '').split('-');
     const count = Number(id) || 0;
     cache.setKey(storeSlug, { count, date: current });
     return `${current}-${getPadded(count + 1)}`;

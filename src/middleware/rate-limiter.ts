@@ -1,8 +1,8 @@
 import { Request } from 'express';
 import { rateLimit } from 'express-rate-limit';
 
-import { env } from '@/utils/env-config';
-import { logger } from '@/server';
+import { env } from '@/providers/env-config';
+import { logger } from '@/providers/server';
 
 const rateLimiter = rateLimit({
   legacyHeaders: true,

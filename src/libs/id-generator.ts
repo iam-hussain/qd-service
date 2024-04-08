@@ -1,6 +1,7 @@
-import { v4 as uuidv4 } from "uuid";
-import { nanoid } from "nanoid";
-import dateTime from "./date-time";
+import { nanoid } from 'nanoid';
+import { v4 as uuidv4 } from 'uuid';
+
+import dateTime from './date-time';
 
 export const generateUUID = () => {
   return uuidv4();
@@ -17,14 +18,10 @@ export const generateNanoID = (length?: number) => {
   return nanoid();
 };
 
-function generateAlphaNumericSeries(
-  prefix: string,
-  sequenceNumber: number,
-  includeDate: boolean = true
-) {
+function generateAlphaNumericSeries(prefix: string, sequenceNumber: number, includeDate: boolean = true) {
   const formattedDate = dateTime.getIDFormatDate();
   // Pad sequence number with leading zeros
-  const paddedSequenceNumber = sequenceNumber.toString().padStart(5, "0");
+  const paddedSequenceNumber = sequenceNumber.toString().padStart(5, '0');
 
   if (!includeDate) {
     // Concatenate prefix, and padded sequence number
