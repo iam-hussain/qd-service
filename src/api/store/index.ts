@@ -1,4 +1,4 @@
-import express, { Request, Response, Router } from 'express';
+import express, { NextFunction, Request, Response, Router } from 'express';
 
 import { handleServiceResponse, validateRequest } from '@/utils/http-handlers';
 import { validateAccess } from '@/utils/shield-handler';
@@ -18,9 +18,13 @@ export const storeRouter: Router = (() => {
     '/additional',
     validateAccess('SIGN_STORE'),
     validateRequest(AdditionalSchema),
-    async (req: Request, res: Response) => {
-      const serviceResponse = await storeService.additional(req.auth.storeSlug, req.body);
-      handleServiceResponse(serviceResponse, res);
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const serviceResponse = await storeService.additional(req.auth.storeSlug, req.body);
+        handleServiceResponse(serviceResponse, res);
+      } catch (err) {
+        next(err);
+      }
     }
   );
 
