@@ -6,6 +6,8 @@ export type JWT_OBJECT = {
   type: 'CUSTOMER' | 'SELLER';
 };
 
+export type JWT_DECODE = { data: JWT_OBJECT; iat: number; exp: number };
+
 type CALC_VALUE_TYPE = 'VALUE' | 'PERCENTAGE' | 'VALUE_COUNT';
 
 export type StoreAdditionalType = {
@@ -37,5 +39,15 @@ export type StoreAdditionalType = {
   delivery: {
     value: number;
     type: CALC_VALUE_TYPE;
+  };
+};
+
+export type CustomRequest = Request & {
+  auth: {
+    hasToken: boolean;
+    isSeller: boolean;
+    hasStore: boolean;
+    storeId: string;
+    userId: string;
   };
 };

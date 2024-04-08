@@ -5,8 +5,10 @@ import helmet from 'helmet';
 import { pino } from 'pino';
 
 import { authRouter } from '@/api/authentication';
+import { authTransformer } from '@/api/authentication/transfomer';
 import { healthCheckRouter } from '@/api/health-check';
 import { userRouter } from '@/api/user';
+import jwt from '@/libs/jwt';
 import errorHandler from '@/middleware/error-handler';
 import rateLimiter from '@/middleware/rate-limiter';
 import requestLogger from '@/middleware/request-logger';
@@ -29,8 +31,36 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // Request logging
 app.use(requestLogger());
 
-app.use((req, res, next) => {
-  console.log({ body: req.body });
+app.use((req: any, res, next) => {
+  const token = authTransformer.getToken(req as unknown as Request);
+  if (token) {
+    const decoded = jwt.decode(token);
+    if (decoded) {
+      const payload = authTransformer.extractToken(decoded);
+
+      req.auth = {
+        ...payload,
+        hasToken: true,
+      };
+    } else {
+      req.auth = {
+        hasToken: true,
+        isSeller: false,
+        hasStore: false,
+        storeId: null,
+        userId: null,
+      };
+    }
+  } else {
+    req.auth = {
+      hasToken: false,
+      isSeller: false,
+      hasStore: false,
+      storeId: null,
+      userId: null,
+    };
+  }
+  console.log({ auth: req.auth });
   next();
 });
 

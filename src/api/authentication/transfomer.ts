@@ -1,8 +1,8 @@
-import { JWT_OBJECT } from '@/types';
+import { JWT_DECODE } from '@/types';
 
 export const authTransformer = {
-  getToken: (req: Request) => {
-    const authorization = req.headers.get('authorization');
+  getToken: (req: any) => {
+    const authorization = req.headers['authorization'] || '';
     if (!authorization) {
       return null;
     }
@@ -15,15 +15,16 @@ export const authTransformer = {
 
     return jwtToken;
   },
-  extractToken: (decoded: JWT_OBJECT) => {
-    const tokenType = decoded ? decoded.type : '';
+  extractToken: (decoded: JWT_DECODE) => {
+    const data = decoded.data || {};
+    const type = data ? data.type : '';
     return {
-      decoded,
-      type: decoded ? decoded.type : '',
-      isSeller: decoded && Boolean(decoded.userId) && tokenType === 'SELLER',
-      hasStore: decoded && Boolean(decoded.storeId),
-      storeId: decoded.storeId || null,
-      userId: decoded.userId,
+      ...data,
+      type,
+      isSeller: data && Boolean(data.userId) && type === 'SELLER',
+      hasStore: data && Boolean(data.storeId),
+      storeId: data.storeId || null,
+      userId: data.userId,
     };
   },
 };
