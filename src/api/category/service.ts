@@ -1,3 +1,5 @@
+import database from '@/providers/database';
+
 import { storeRepository } from '../store/repository';
 import { storeTransformer } from './transformer';
 
@@ -16,11 +18,11 @@ export const storeService = {
     const storeData = storeTransformer.getStoreAdditional(store);
     const data = storeTransformer.mergeStoreAdditional(storeData, reqBody);
 
-    return storeRepository.updateAdditional(
-      {
+    return database.store.update({
+      where: {
         id: store.id,
       },
-      {
+      data: {
         tables: {
           set: data.tables as any,
         },
@@ -30,7 +32,7 @@ export const storeService = {
         taxes: {
           set: data.taxes as any,
         },
-      }
-    );
+      },
+    });
   },
 };

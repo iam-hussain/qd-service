@@ -22,4 +22,10 @@ export const storeRepository = {
       },
     });
   },
+  updateAdditional: (where: any, data: any) => {
+    return database.store.update({
+      where,
+      data,
+    });
+  },
 };
