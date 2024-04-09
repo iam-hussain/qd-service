@@ -18,6 +18,15 @@ export const CategoryUpdateSchema = z.object({
 
 export type CategoryUpdate = z.infer<typeof CategoryUpdateSchema>;
 
-export const GetCategorySchema = z.object({
+export const CategoryCreateReqSchema = z.object({
+  body: CategoryCreateSchema,
+});
+
+export const CategoryUpdateReqSchema = z.object({
+  body: CategoryUpdateSchema,
+  params: z.object({ id: commonValidations.id }),
+});
+
+export const GetCategoryReqSchema = z.object({
   params: z.object({ id: commonValidations.id }),
 });

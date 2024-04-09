@@ -3,7 +3,7 @@ import express, { NextFunction, Request, Response, Router } from 'express';
 import { handleServiceResponse, validateRequest } from '@/utils/http-handlers';
 import { validateAccess } from '@/utils/shield-handler';
 
-import { ProductCreateSchema, ProductUpdateSchema } from './model';
+import { GetProductReqSchema, ProductCreateReqSchema, ProductUpdateReqSchema } from './model';
 import { productService } from './service';
 
 export const productRouter: Router = (() => {
@@ -14,16 +14,21 @@ export const productRouter: Router = (() => {
     handleServiceResponse(serviceResponse, res);
   });
 
-  router.get('/product/:id', validateAccess('SIGN_STORE'), async (req: Request, res: Response) => {
-    const id = req.params.id || '';
-    const serviceResponse = await productService.product(id, req.auth.storeSlug);
-    handleServiceResponse(serviceResponse, res);
-  });
+  router.get(
+    '/product/:id',
+    validateAccess('SIGN_STORE'),
+    validateRequest(GetProductReqSchema),
+    async (req: Request, res: Response) => {
+      const id = req.params.id || '';
+      const serviceResponse = await productService.product(id, req.auth.storeSlug);
+      handleServiceResponse(serviceResponse, res);
+    }
+  );
 
   router.post(
     '/product',
     validateAccess('SIGN_STORE'),
-    validateRequest(ProductCreateSchema),
+    validateRequest(ProductCreateReqSchema),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const serviceResponse = await productService.create(req.auth.storeSlug, req.body);
@@ -37,7 +42,7 @@ export const productRouter: Router = (() => {
   router.patch(
     '/product/:id',
     validateAccess('SIGN_STORE'),
-    validateRequest(ProductUpdateSchema),
+    validateRequest(ProductUpdateReqSchema),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const id = req.params.id || '';

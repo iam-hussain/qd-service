@@ -31,6 +31,10 @@ export const OrderUpsertSchema = z.object({
   taxes: FeesSchema,
 });
 
+export const OrderUpsertReqSchema = z.object({
+  body: OrderUpsertSchema,
+});
+
 export type OrderUpsert = z.infer<typeof OrderUpsertSchema>;
 
 export const GetOrdersSchema = z.object({
@@ -44,8 +48,12 @@ export const GetOrdersSchema = z.object({
   statuses: z.array(ORDER_STATUS).optional(),
 });
 
+export const GetOrdersReqSchema = z.object({
+  body: GetOrdersSchema,
+});
+
 export type GetOrders = z.infer<typeof GetOrdersSchema>;
 
-export const GetOrderSchema = z.object({
+export const GetOrderReqSchema = z.object({
   params: z.object({ id: commonValidations.id }),
 });

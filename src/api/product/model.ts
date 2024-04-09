@@ -14,6 +14,10 @@ export const ProductCreateSchema = z.object({
   categoryId: z.string(),
 });
 
+export const ProductCreateReqSchema = z.object({
+  body: ProductCreateSchema,
+});
+
 export const ProductUpdateSchema = z.object({
   name: z.string().optional(),
   deck: z.string().optional(),
@@ -22,8 +26,13 @@ export const ProductUpdateSchema = z.object({
   categoryId: z.string().optional(),
 });
 
+export const ProductUpdateReqSchema = z.object({
+  body: ProductUpdateSchema,
+  params: z.object({ id: commonValidations.id }),
+});
+
 export type ProductUpdate = z.infer<typeof ProductUpdateSchema>;
 
-export const GetProductSchema = z.object({
+export const GetProductReqSchema = z.object({
   params: z.object({ id: commonValidations.id }),
 });

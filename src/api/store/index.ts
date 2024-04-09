@@ -3,7 +3,7 @@ import express, { NextFunction, Request, Response, Router } from 'express';
 import { handleServiceResponse, validateRequest } from '@/utils/http-handlers';
 import { validateAccess } from '@/utils/shield-handler';
 
-import { AdditionalSchema } from './model';
+import { AdditionalReqSchema } from './model';
 import { storeService } from './service';
 
 export const storeRouter: Router = (() => {
@@ -17,7 +17,7 @@ export const storeRouter: Router = (() => {
   router.patch(
     '/additional',
     validateAccess('SIGN_STORE'),
-    validateRequest(AdditionalSchema),
+    validateRequest(AdditionalReqSchema),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const serviceResponse = await storeService.additional(req.auth.storeSlug, req.body);

@@ -6,7 +6,6 @@ export const SignInSchema = z.object({
   password: z.string(),
 });
 
-// Input Validation for 'GET users/:id' endpoint
 export const SignInReqSchema = z.object({
   body: SignInSchema,
 });

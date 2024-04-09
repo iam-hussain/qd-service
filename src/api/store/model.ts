@@ -26,7 +26,7 @@ export const TableSchema = z.object({
 export type Tables = z.infer<typeof TablesSchema>;
 export const TablesSchema = z.array(TableSchema).optional();
 
-export const AdditionalSchema = z.object({
+export const AdditionalReqSchema = z.object({
   body: z.object({
     fees: FeesSchema,
     taxes: FeesSchema,
