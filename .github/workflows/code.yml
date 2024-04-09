@@ -6,15 +6,15 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: oven-sh/setup-bun@v1
+        uses: actions/setup-node@v3
         with:
-          bun-version: latest
-      - run: bun i
-      - run: bun run build
+          node-version: '20.x'
+      - run: npm ci
+      - run: npm run prisma:generate
+      - run: npm run build
 
   deployment:
     name: Deployment
