@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { commonValidations } from '@/utils/common-validation';
 
-const PRODUCT_TYPE = z.enum(['VEG', 'NON_VEG', 'VEGAN']);
+export const PRODUCT_TYPE = z.enum(['VEG', 'NON_VEG', 'VEGAN']);
 
 export type ProductCreate = z.infer<typeof ProductCreateSchema>;
 

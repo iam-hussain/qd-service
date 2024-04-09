@@ -13,7 +13,7 @@ export const FeeSchema = z.object({
 });
 
 export type Fees = z.infer<typeof FeesSchema>;
-const FeesSchema = z.array(FeeSchema).optional();
+export const FeesSchema = z.array(FeeSchema).optional();
 
 export type Table = z.infer<typeof TableSchema>;
 export const TableSchema = z.object({
@@ -24,7 +24,7 @@ export const TableSchema = z.object({
 });
 
 export type Tables = z.infer<typeof TablesSchema>;
-const TablesSchema = z.array(TableSchema).optional();
+export const TablesSchema = z.array(TableSchema).optional();
 
 export const AdditionalSchema = z.object({
   body: z.object({

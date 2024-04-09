@@ -53,7 +53,7 @@ const incrementOrderId = (storeSlug: string) => {
   cache.setKey(storeSlug, { count: cached.count + 1, date: current });
 };
 
-export default {
+export const idSeries = {
   generateOrderId,
   incrementOrderId,
 };
