@@ -38,7 +38,6 @@ const generateOrderId = async (storeSlug: string) => {
         shortId: 'desc',
       },
     });
-    console.log('I am ed', { lastEntry });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_, id] = (lastEntry?.shortId || '').split('-');
     const count = Number(id) || 0;
