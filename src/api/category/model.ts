@@ -1,35 +1,23 @@
 import { z } from 'zod';
 
-export const CALC_VALUE_TYPE = z.enum(['VALUE', 'PERCENTAGE', 'VALUE_COUNT']);
+import { commonValidations } from '@/utils/common-validation';
 
-export type Fee = z.infer<typeof FeeSchema>;
-export const FeeSchema = z.object({
-  key: z.string(),
+export type CategoryCreate = z.infer<typeof CategoryCreateSchema>;
+
+export const CategoryCreateSchema = z.object({
   name: z.string(),
-  rate: z.number(),
-  printName: z.string().optional(),
-  position: z.number().optional(),
-  type: CALC_VALUE_TYPE.optional(),
-});
-
-export type Fees = z.infer<typeof FeesSchema>;
-const FeesSchema = z.array(FeeSchema).optional();
-
-export type Table = z.infer<typeof TableSchema>;
-export const TableSchema = z.object({
-  key: z.string(),
-  name: z.string(),
-  printName: z.string().optional(),
+  deck: z.string().optional(),
   position: z.number().optional(),
 });
 
-export type Tables = z.infer<typeof TablesSchema>;
-const TablesSchema = z.array(TableSchema).optional();
+export const CategoryUpdateSchema = z.object({
+  name: z.string().optional(),
+  deck: z.string().optional(),
+  position: z.number().optional(),
+});
 
-export const AdditionalSchema = z.object({
-  body: z.object({
-    fees: FeesSchema,
-    taxes: FeesSchema,
-    tables: TablesSchema,
-  }),
+export type CategoryUpdate = z.infer<typeof CategoryUpdateSchema>;
+
+export const GetCategorySchema = z.object({
+  params: z.object({ id: commonValidations.id }),
 });

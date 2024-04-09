@@ -6,7 +6,9 @@ import { pino } from 'pino';
 
 import { authRouter } from '@/api/authentication';
 import { authTransformer } from '@/api/authentication/transfomer';
+import { categoryRouter } from '@/api/category';
 import { healthCheckRouter } from '@/api/health-check';
+import { productRouter } from '@/api/product';
 import { storeRouter } from '@/api/store';
 import { userRouter } from '@/api/user';
 import jwt from '@/libs/jwt';
@@ -69,6 +71,8 @@ app.use((req: any, res, next) => {
 app.use('/api/authentication', authRouter);
 app.use('/api/health-check', healthCheckRouter);
 app.use('/api/store', storeRouter);
+app.use('/api/store', productRouter);
+app.use('/api/store', categoryRouter);
 app.use('/api/user', userRouter);
 
 // Error handlers

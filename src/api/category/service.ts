@@ -1,38 +1,26 @@
-import database from '@/providers/database';
+import { CategoryCreate } from './model';
+import { categoryRepository } from './repository';
+import { categoryTransformer } from './transformer';
 
-import { storeRepository } from '../store/repository';
-import { storeTransformer } from './transformer';
-
-export const storeService = {
-  store: async (slug: string) => {
-    const store = await storeRepository.findBySlug(slug);
-    return store;
+export const categoryService = {
+  category: async (id: string, slug: string) => {
+    const repositoryResponse = await categoryRepository.findById(id, slug);
+    return categoryTransformer.category(repositoryResponse as any);
   },
-  additional: async (slug: string, input: any) => {
-    const store = await storeRepository.findBySlug(slug);
-    if (!store) {
-      throw new Error('INVALID_STORE');
-    }
-
-    const reqBody = storeTransformer.validateStoreAdditional(input);
-    const storeData = storeTransformer.getStoreAdditional(store);
-    const data = storeTransformer.mergeStoreAdditional(storeData, reqBody);
-
-    return database.store.update({
-      where: {
-        id: store.id,
-      },
-      data: {
-        tables: {
-          set: data.tables as any,
-        },
-        fees: {
-          set: data.fees as any,
-        },
-        taxes: {
-          set: data.taxes as any,
-        },
-      },
-    });
+  categories: async (slug: string) => {
+    const repositoryResponse = await categoryRepository.findManyByStoreSlug(slug);
+    return categoryTransformer.categories(repositoryResponse);
+  },
+  create: async (slug: string, data: CategoryCreate) => {
+    const repositoryResponse = await categoryRepository.create(slug, data);
+    return categoryTransformer.category(repositoryResponse);
+  },
+  update: async (slug: string, id: string, data: CategoryCreate) => {
+    const repositoryResponse = await categoryRepository.update(slug, id, data);
+    return categoryTransformer.category(repositoryResponse);
+  },
+  delete: async (slug: string, id: string) => {
+    const repositoryResponse = await categoryRepository.deleteById(slug, id);
+    return repositoryResponse;
   },
 };

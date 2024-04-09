@@ -3,30 +3,30 @@ import express, { NextFunction, Request, Response, Router } from 'express';
 import { handleServiceResponse, validateRequest } from '@/utils/http-handlers';
 import { validateAccess } from '@/utils/shield-handler';
 
-import { CategoryCreateSchema, CategoryUpdateSchema } from './model';
-import { categoryService } from './service';
+import { ProductCreateSchema, ProductUpdateSchema } from './model';
+import { productService } from './service';
 
-export const categoryRouter: Router = (() => {
+export const productRouter: Router = (() => {
   const router = express.Router();
 
-  router.get('/categories', validateAccess('SIGN_STORE'), async (req: Request, res: Response) => {
-    const serviceResponse = await categoryService.categories(req.auth.storeSlug);
+  router.get('/products', validateAccess('SIGN_STORE'), async (req: Request, res: Response) => {
+    const serviceResponse = await productService.products(req.auth.storeSlug);
     handleServiceResponse(serviceResponse, res);
   });
 
-  router.get('/category/:id', validateAccess('SIGN_STORE'), async (req: Request, res: Response) => {
+  router.get('/product/:id', validateAccess('SIGN_STORE'), async (req: Request, res: Response) => {
     const id = req.params.id || '';
-    const serviceResponse = await categoryService.category(id, req.auth.storeSlug);
+    const serviceResponse = await productService.product(id, req.auth.storeSlug);
     handleServiceResponse(serviceResponse, res);
   });
 
   router.post(
-    '/category',
+    '/product',
     validateAccess('SIGN_STORE'),
-    validateRequest(CategoryCreateSchema),
+    validateRequest(ProductCreateSchema),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const serviceResponse = await categoryService.create(req.auth.storeSlug, req.body);
+        const serviceResponse = await productService.create(req.auth.storeSlug, req.body);
         handleServiceResponse(serviceResponse, res);
       } catch (err) {
         next(err);
@@ -35,13 +35,13 @@ export const categoryRouter: Router = (() => {
   );
 
   router.patch(
-    '/category/:id',
+    '/product/:id',
     validateAccess('SIGN_STORE'),
-    validateRequest(CategoryUpdateSchema),
+    validateRequest(ProductUpdateSchema),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const id = req.params.id || '';
-        const serviceResponse = await categoryService.update(req.auth.storeSlug, id, req.body);
+        const serviceResponse = await productService.update(req.auth.storeSlug, id, req.body);
         handleServiceResponse(serviceResponse, res);
       } catch (err) {
         next(err);
@@ -50,12 +50,12 @@ export const categoryRouter: Router = (() => {
   );
 
   router.delete(
-    '/category/:id',
+    '/product/:id',
     validateAccess('SIGN_STORE'),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const id = req.params.id || '';
-        const serviceResponse = await categoryService.delete(req.auth.storeSlug, id);
+        const serviceResponse = await productService.delete(req.auth.storeSlug, id);
         handleServiceResponse(serviceResponse, res);
       } catch (err) {
         next(err);
