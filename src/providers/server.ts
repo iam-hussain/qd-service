@@ -13,7 +13,7 @@ import { storeRouter } from '@/api/store';
 import { userRouter } from '@/api/user';
 import jwt from '@/libs/jwt';
 import errorHandler from '@/middleware/error-handler';
-import rateLimiter from '@/middleware/rate-limiter';
+// import rateLimiter from '@/middleware/rate-limiter';
 import requestLogger from '@/middleware/request-logger';
 import { env } from '@/providers/env-config';
 import { RequestAuth } from '@/types';
@@ -27,7 +27,7 @@ app.set('trust proxy', true);
 // Middlewares
 app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
 app.use(helmet());
-app.use(rateLimiter);
+// app.use(rateLimiter);
 
 // parse application/x-www-form-urlencoded
 app.use(express.json());

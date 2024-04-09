@@ -1,6 +1,7 @@
 import idGenerator from '@/libs/id-generator';
 import database from '@/providers/database';
 
+import { productRepository } from '../product/repository';
 import { CategoryCreate, CategoryUpdate } from './model';
 
 export const categoryRepository = {
@@ -40,6 +41,7 @@ export const categoryRepository = {
     return database.category.create({
       data: {
         ...data,
+        id: idGenerator.generateShortID(),
         shortId: idGenerator.generateShortID(),
         store: {
           connect: {
@@ -61,6 +63,10 @@ export const categoryRepository = {
     });
   },
   deleteById: async (id: string, slug: string) => {
+    const connected = await productRepository.countByCategory(id, slug);
+    if (connected > 0) {
+      throw new Error('CANNOT_DELETE');
+    }
     return database.category.delete({
       where: {
         id,

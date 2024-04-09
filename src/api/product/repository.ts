@@ -43,6 +43,7 @@ export const productRepository = {
     return database.product.create({
       data: {
         ...data,
+        id: idGenerator.generateShortID(),
         shortId: idGenerator.generateShortID(),
         store: {
           connect: {

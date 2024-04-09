@@ -1,3 +1,4 @@
+import idGenerator from '@/libs/id-generator';
 import { idSeries } from '@/libs/id-series';
 import database from '@/providers/database';
 
@@ -24,6 +25,7 @@ export const orderRepository = {
   create: async (slug: string, data: any, userId: string) => {
     const response = await database.order.create({
       data: {
+        id: idGenerator.generateShortID(),
         shortId: await idSeries.generateOrderId(slug),
         createdBy: {
           connect: {
