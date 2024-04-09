@@ -9,7 +9,6 @@ export const authRouter: Router = (() => {
   const router = express.Router();
 
   router.post('/sign-in', validateRequest(SignInReqSchema), async (req: Request, res: Response) => {
-    console.log('Called');
     const serviceResponse = await authService.signIn(req.body);
     handleServiceResponse(serviceResponse, res);
   });

@@ -1,4 +1,3 @@
-import bodyParser from 'body-parser';
 import cors from 'cors';
 import express, { Express } from 'express';
 import helmet from 'helmet';
@@ -31,7 +30,7 @@ app.use(helmet());
 app.use(rateLimiter);
 
 // parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
 
 // Request logging
 app.use(requestLogger());
@@ -64,7 +63,7 @@ app.use((req: any, res, next) => {
   }
 
   req.auth = auth;
-  console.log({ auth: req.auth });
+  console.log(JSON.stringify({ auth: req.auth, body: req.body, params: req.params, header: req.header }));
   next();
 });
 
