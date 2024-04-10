@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import { ZodSchema } from 'zod';
 
 export const handleServiceResponse = (serviceResponse: any, response: Response, code: number = 200) => {
-  return response.status(code).send(serviceResponse);
+  return response.status(serviceResponse?.code || code).send(serviceResponse);
 };
 
 export const validateRequest = (schema: ZodSchema) => (req: Request, res: Response, next: NextFunction) => {

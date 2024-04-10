@@ -1,4 +1,4 @@
-import { SignInSchemaType } from '@iam-hussain/qd-copilot';
+import { SignInSchemaType, validationErrorResponse } from '@iam-hussain/qd-copilot';
 import { StatusCodes } from 'http-status-codes';
 
 import { userRepository } from '@/api/user/repository';
@@ -17,17 +17,16 @@ export const authService = {
     try {
       const user = await userRepository.findByEmail(input.email);
       if (!user) {
-        return new ServiceResponse(ResponseStatus.Failed, 'USER_NOT_FOUND', null, StatusCodes.NOT_FOUND);
+        return validationErrorResponse('email', 'user_not_exist');
       }
 
       if (!user.password || !user.salt) {
-        return new ServiceResponse(ResponseStatus.Failed, 'NO_PASSWORD_FOUND', null, StatusCodes.NOT_FOUND);
+        return validationErrorResponse('password', 'password_not_added');
       }
-
       const isMatching = hash.verify(input.password, user.password, user.salt);
 
       if (!isMatching) {
-        return new ServiceResponse(ResponseStatus.Failed, 'INVALID_PASSWORD', null, StatusCodes.NOT_FOUND);
+        return validationErrorResponse('password', 'password_incorrect');
       }
 
       const tokenData: JWT_OBJECT = {

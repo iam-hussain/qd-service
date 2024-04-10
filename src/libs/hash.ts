@@ -5,12 +5,13 @@ const hashIt = (input: string, salt: string) => {
 };
 
 export default {
-  verify: async (password: string, hash: string, salt: string) => {
+  verify: (password: string, hash: string, salt: string) => {
     const passwordHash = hashIt(password, salt);
+    console.log({ passwordHash, salt, hash });
     return hash === passwordHash;
   },
 
-  generate: async (password: string) => {
+  generate: (password: string) => {
     const salt = generateKeySync('hmac', { length: 512 }).export().toString('hex');
 
     return [hashIt(password, salt), salt];
