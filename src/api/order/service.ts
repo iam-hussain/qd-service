@@ -74,11 +74,11 @@ export const orderService = {
       if (!fetchedOrder || !fetchedOrder.id) {
         throw new Error('INVALID_INPUT');
       }
-      repositoryResponse = orderRepository.update(slug, fetchedOrder.shortId, input, userId);
+      repositoryResponse = await orderRepository.update(slug, fetchedOrder.shortId, input, userId);
     } else {
       repositoryResponse = await orderRepository.create(slug, input, userId);
     }
-
+    console.log({ repositoryResponse });
     if (!repositoryResponse || !repositoryResponse.id) {
       throw new Error('INVALID_INPUT');
     }
@@ -89,7 +89,7 @@ export const orderService = {
       await itemRepository.createMany(itemsInput);
     }
 
-    return repositoryResponse;
+    return await orderRepository.findByShortId(shortId || repositoryResponse.id, slug);
   },
   delete: async (slug: string, id: string) => {
     const repositoryResponse = await orderRepository.deleteById(slug, id);
