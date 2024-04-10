@@ -2,3 +2,5 @@ dist
 coverage
 package-lock.json
 package.json
+lib
+node_modules

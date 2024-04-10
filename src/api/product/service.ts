@@ -1,4 +1,5 @@
-import { ProductCreate, ProductUpdate } from './model';
+import { ProductCreateSchemaType, ProductUpdateSchemaType } from '@iam-hussain/qd-copilot';
+
 import { productRepository } from './repository';
 import { productTransformer } from './transformer';
 
@@ -11,11 +12,11 @@ export const productService = {
     const repositoryResponse = await productRepository.findManyByStoreSlug(slug);
     return productTransformer.products(repositoryResponse);
   },
-  create: async (slug: string, data: ProductCreate) => {
+  create: async (slug: string, data: ProductCreateSchemaType) => {
     const repositoryResponse = await productRepository.create(slug, data);
     return productTransformer.product(repositoryResponse);
   },
-  update: async (slug: string, id: string, data: ProductUpdate) => {
+  update: async (slug: string, id: string, data: ProductUpdateSchemaType) => {
     const repositoryResponse = await productRepository.update(slug, id, data);
     return productTransformer.product(repositoryResponse);
   },

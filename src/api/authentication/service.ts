@@ -1,3 +1,4 @@
+import { SignInSchemaType } from '@iam-hussain/qd-copilot';
 import { StatusCodes } from 'http-status-codes';
 
 import { userRepository } from '@/api/user/repository';
@@ -10,10 +11,9 @@ import { JWT_OBJECT } from '@/types';
 import { storeRepository } from '../store/repository';
 import { storeTransformer } from '../store/transformer';
 import { userTransformer } from '../user/transformer';
-import { SignIn } from './model';
 
 export const authService = {
-  signIn: async (input: SignIn) => {
+  signIn: async (input: SignInSchemaType) => {
     try {
       const user = await userRepository.findByEmail(input.email);
       if (!user) {

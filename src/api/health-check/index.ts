@@ -12,5 +12,10 @@ export const healthCheckRouter: Router = (() => {
     handleServiceResponse(serviceResponse, res);
   });
 
+  router.get('/ping', (_req: Request, res: Response) => {
+    const serviceResponse = new ServiceResponse(ResponseStatus.Success, 'pong', null, StatusCodes.OK);
+    handleServiceResponse(serviceResponse, res);
+  });
+
   return router;
 })();

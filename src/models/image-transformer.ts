@@ -1,5 +1,4 @@
 import sorts from '@/libs/sorts';
-
 const imageTypes = ['BASE64', 'PATH', 'URL', 'COLOR'];
 
 const imagePick = (image: any = {}) => {

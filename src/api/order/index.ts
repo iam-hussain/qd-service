@@ -1,9 +1,9 @@
+import { OrderUpsertReqSchema, ParamIdReqSchema } from '@iam-hussain/qd-copilot';
 import express, { NextFunction, Request, Response, Router } from 'express';
 
 import { handleServiceResponse, validateRequest } from '@/utils/http-handlers';
 import { validateAccess } from '@/utils/shield-handler';
 
-import { GetOrderReqSchema, OrderUpsertReqSchema } from './model';
 import { orderService } from './service';
 
 export const orderRouter: Router = (() => {
@@ -12,7 +12,7 @@ export const orderRouter: Router = (() => {
   router.get(
     '/orders',
     validateAccess('SIGN_STORE'),
-    validateRequest(GetOrderReqSchema),
+    validateRequest(ParamIdReqSchema),
     async (req: Request, res: Response) => {
       const serviceResponse = await orderService.orders(req.auth.storeSlug, req.params);
       handleServiceResponse(serviceResponse, res);
@@ -22,7 +22,7 @@ export const orderRouter: Router = (() => {
   router.get(
     '/order/:id',
     validateAccess('SIGN_STORE'),
-    validateRequest(GetOrderReqSchema),
+    validateRequest(ParamIdReqSchema),
     async (req: Request, res: Response) => {
       const id = req.params.id || '';
       const serviceResponse = await orderService.order(id, req.auth.storeSlug);

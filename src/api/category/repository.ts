@@ -1,8 +1,9 @@
+import { CategoryCreateSchemaType, CategoryUpdateSchemaType } from '@iam-hussain/qd-copilot';
+
 import idGenerator from '@/libs/id-generator';
 import database from '@/providers/database';
 
 import { productRepository } from '../product/repository';
-import { CategoryCreate, CategoryUpdate } from './model';
 
 export const categoryRepository = {
   findById: async (id: string, slug: string) => {
@@ -37,7 +38,7 @@ export const categoryRepository = {
       },
     });
   },
-  create: (slug: string, data: CategoryCreate) => {
+  create: (slug: string, data: CategoryCreateSchemaType) => {
     return database.category.create({
       data: {
         ...data,
@@ -51,7 +52,7 @@ export const categoryRepository = {
       },
     });
   },
-  update: (slug: string, id: string, data: CategoryUpdate) => {
+  update: (slug: string, id: string, data: CategoryUpdateSchemaType) => {
     return database.category.update({
       where: {
         id,

@@ -1,9 +1,10 @@
+import { OrderUpsertSchemaType } from '@iam-hussain/qd-copilot';
+
 import dateTime from '@/libs/date-time';
 
 import { storeTransformer } from '../store/transformer';
-import { OrderUpsert } from './model';
 
-const getOrder = (data: OrderUpsert, returnDefault: boolean = false) => {
+const getOrder = (data: OrderUpsertSchemaType, returnDefault: boolean = false) => {
   const order: any = {};
 
   if (data?.type) {

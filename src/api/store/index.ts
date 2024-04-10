@@ -1,9 +1,9 @@
+import { AdditionalReqSchema } from '@iam-hussain/qd-copilot';
 import express, { NextFunction, Request, Response, Router } from 'express';
 
 import { handleServiceResponse, validateRequest } from '@/utils/http-handlers';
 import { validateAccess } from '@/utils/shield-handler';
 
-import { AdditionalReqSchema } from './model';
 import { storeService } from './service';
 
 export const storeRouter: Router = (() => {

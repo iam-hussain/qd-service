@@ -1,7 +1,7 @@
+import { ProductCreateSchemaType, ProductUpdateSchemaType } from '@iam-hussain/qd-copilot';
+
 import idGenerator from '@/libs/id-generator';
 import database from '@/providers/database';
-
-import { ProductCreate, ProductUpdate } from './model';
 
 export const productRepository = {
   countByCategory: async (id: string, slug: string) => {
@@ -39,7 +39,7 @@ export const productRepository = {
       },
     });
   },
-  create: (slug: string, { categoryId, ...data }: ProductCreate) => {
+  create: (slug: string, { categoryId, ...data }: ProductCreateSchemaType) => {
     return database.product.create({
       data: {
         ...data,
@@ -58,7 +58,7 @@ export const productRepository = {
       },
     });
   },
-  update: (slug: string, id: string, { categoryId, ...data }: ProductUpdate) => {
+  update: (slug: string, id: string, { categoryId, ...data }: ProductUpdateSchemaType) => {
     return database.product.update({
       where: {
         id,

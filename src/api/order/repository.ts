@@ -1,8 +1,8 @@
+import { OrderUpsertSchemaType } from '@iam-hussain/qd-copilot';
+
 import idGenerator from '@/libs/id-generator';
 import { idSeries } from '@/libs/id-series';
 import database from '@/providers/database';
-
-import { OrderUpsert } from './model';
 
 export const orderRepository = {
   findByShortId: async (shortId: string, slug: string) => {
@@ -43,7 +43,7 @@ export const orderRepository = {
     idSeries.incrementOrderId(slug);
     return response;
   },
-  update: (slug: string, shortId: string, data: Partial<OrderUpsert>, userId: string) => {
+  update: (slug: string, shortId: string, data: Partial<OrderUpsertSchemaType>, userId: string) => {
     return database.order.update({
       where: {
         shortId,

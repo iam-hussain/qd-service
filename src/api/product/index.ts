@@ -1,9 +1,9 @@
+import { ParamIdReqSchema, ProductCreateReqSchema, ProductUpdateReqSchema } from '@iam-hussain/qd-copilot';
 import express, { NextFunction, Request, Response, Router } from 'express';
 
 import { handleServiceResponse, validateRequest } from '@/utils/http-handlers';
 import { validateAccess } from '@/utils/shield-handler';
 
-import { GetProductReqSchema, ProductCreateReqSchema, ProductUpdateReqSchema } from './model';
 import { productService } from './service';
 
 export const productRouter: Router = (() => {
@@ -17,7 +17,7 @@ export const productRouter: Router = (() => {
   router.get(
     '/product/:id',
     validateAccess('SIGN_STORE'),
-    validateRequest(GetProductReqSchema),
+    validateRequest(ParamIdReqSchema),
     async (req: Request, res: Response) => {
       const id = req.params.id || '';
       const serviceResponse = await productService.product(id, req.auth.storeSlug);

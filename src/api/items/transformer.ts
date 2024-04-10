@@ -1,10 +1,9 @@
+import { ItemCreateSchemaType } from '@iam-hussain/qd-copilot';
 import { PRODUCT_TYPE } from '@prisma/client';
 
 import dateTime from '@/libs/date-time';
 
-import { ItemCreate } from './model';
-
-const getItems = (input: ItemCreate, orderId: string, userId: string) => {
+const getItems = (input: ItemCreateSchemaType, orderId: string, userId: string) => {
   return {
     productId: input.productId,
     title: input.title || '',

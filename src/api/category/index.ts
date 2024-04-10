@@ -1,9 +1,9 @@
+import { CategoryCreateReqSchema, CategoryUpdateReqSchema, ParamIdReqSchema } from '@iam-hussain/qd-copilot';
 import express, { NextFunction, Request, Response, Router } from 'express';
 
 import { handleServiceResponse, validateRequest } from '@/utils/http-handlers';
 import { validateAccess } from '@/utils/shield-handler';
 
-import { CategoryCreateReqSchema, CategoryUpdateReqSchema, GetCategoryReqSchema } from './model';
 import { categoryService } from './service';
 
 export const categoryRouter: Router = (() => {
@@ -17,7 +17,7 @@ export const categoryRouter: Router = (() => {
   router.get(
     '/category/:id',
     validateAccess('SIGN_STORE'),
-    validateRequest(GetCategoryReqSchema),
+    validateRequest(ParamIdReqSchema),
     async (req: Request, res: Response) => {
       const id = req.params.id || '';
       const serviceResponse = await categoryService.category(id, req.auth.storeSlug);
@@ -57,7 +57,7 @@ export const categoryRouter: Router = (() => {
   router.delete(
     '/category/:id',
     validateAccess('SIGN_STORE'),
-    validateRequest(GetCategoryReqSchema),
+    validateRequest(ParamIdReqSchema),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const id = req.params.id || '';

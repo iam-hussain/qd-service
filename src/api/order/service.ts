@@ -1,7 +1,7 @@
-import { ItemCreate } from '../items/model';
+import { GetOrdersSchemaType, ItemCreateSchemaType, OrderUpsertSchemaType } from '@iam-hussain/qd-copilot';
+
 import { itemRepository } from '../items/repository';
 import { itemTransformer } from '../items/transformer';
-import { GetOrders, OrderUpsert } from './model';
 import { orderRepository } from './repository';
 import { orderTransformer } from './transformer';
 
@@ -10,7 +10,7 @@ export const orderService = {
     const repositoryResponse = await orderRepository.findByShortId(id, slug);
     return repositoryResponse;
   },
-  orders: async (slug: string, data: GetOrders) => {
+  orders: async (slug: string, data: GetOrdersSchemaType) => {
     const { take, date, cursor, skip, type, types, status, statuses } = data;
     const props: any = {
       where: {
@@ -62,11 +62,11 @@ export const orderService = {
     const repositoryResponse = await orderRepository.findManyByStoreSlug(props);
     return repositoryResponse;
   },
-  upsert: async (slug: string, data: OrderUpsert, userId: string) => {
+  upsert: async (slug: string, data: OrderUpsertSchemaType, userId: string) => {
     const { shortId, items = [] } = data;
     const input = orderTransformer.getOrder(data);
     let repositoryResponse: any = null;
-    const itemsInput: ItemCreate[] = [];
+    const itemsInput: ItemCreateSchemaType[] = [];
 
     if (shortId) {
       const fetchedOrder = await orderRepository.findByShortId(shortId, slug);
@@ -79,15 +79,11 @@ export const orderService = {
       repositoryResponse = await orderRepository.create(slug, input, userId);
     }
 
-    if (!repositoryResponse) {
+    if (!repositoryResponse || !repositoryResponse.id) {
       throw new Error('INVALID_INPUT');
     }
 
-    items
-      .filter((e) => !e.id)
-      .forEach((e) => {
-        itemsInput.push(itemTransformer.getItems(e, repositoryResponse.id, userId));
-      });
+    items.forEach((e: any) => itemsInput.push(itemTransformer.getItems(e, repositoryResponse.id, userId)));
 
     if (itemsInput.length) {
       await itemRepository.createMany(itemsInput);

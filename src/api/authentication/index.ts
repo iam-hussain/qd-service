@@ -1,8 +1,8 @@
+import { SignInReqSchema } from '@iam-hussain/qd-copilot';
 import express, { Request, Response, Router } from 'express';
 
 import { handleServiceResponse, validateRequest } from '@/utils/http-handlers';
 
-import { SignInReqSchema } from './model';
 import { authService } from './service';
 
 export const authRouter: Router = (() => {
