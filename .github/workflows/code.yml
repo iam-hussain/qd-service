@@ -13,7 +13,7 @@ jobs:
         with:
           node-version: '20.x'
       - run: |
-          echo "@username:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "@iam-hussain:registry=https://npm.pkg.github.com" >> .npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
       - run: npm ci
       - run: npm run prisma:generate
