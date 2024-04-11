@@ -68,8 +68,8 @@ app.use((req: any, res, next) => {
 });
 
 // Routes
+app.use('/', healthCheckRouter);
 app.use('/api/authentication', authRouter);
-app.use('/api/health-check', healthCheckRouter);
 app.use('/api/store', storeRouter);
 app.use('/api/store', productRouter);
 app.use('/api/store', categoryRouter);
