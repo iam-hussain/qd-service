@@ -12,9 +12,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@iam-hussain'
-          token: '${{secrets.GITHUB_TOKEN}}'
+      - run: |
+          echo "@iam-hussain:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc'
       - run: npm ci
       - run: npm run prisma:generate
       - run: npm run build
