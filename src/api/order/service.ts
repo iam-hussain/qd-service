@@ -89,7 +89,8 @@ export const orderService = {
       await itemRepository.createMany(itemsInput);
     }
 
-    return await orderRepository.findByShortId(shortId || repositoryResponse.id, slug);
+    console.log({ shortId, repositoryResponse });
+    return repositoryResponse; // await orderRepository.findByShortId(shortId || repositoryResponse.id, slug);
   },
   delete: async (slug: string, id: string) => {
     const repositoryResponse = await orderRepository.deleteById(slug, id);

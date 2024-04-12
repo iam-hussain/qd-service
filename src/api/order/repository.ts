@@ -6,7 +6,8 @@ import database from '@/providers/database';
 
 export const orderRepository = {
   findByShortId: async (shortId: string, slug: string) => {
-    return database.order.findUniqueOrThrow({
+    console.log({ shortId, slug });
+    return database.order.findUnique({
       where: {
         shortId,
         store: {
