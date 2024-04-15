@@ -1,3 +1,4 @@
+import { getFeatureFlags } from '@iam-hussain/qd-copilot';
 import { Store } from '@prisma/client';
 import { JsonValue } from '@prisma/client/runtime/library';
 import _ from 'lodash';
@@ -167,6 +168,7 @@ const store = (store: Store) => {
     createdDateTime: dateTime.getDateTimeFormat(store.createdAt),
     updatedDate: dateTime.getDateFormat(store.updatedAt),
     updatedDateTime: dateTime.getDateTimeFormat(store.updatedAt),
+    featureFlags: getFeatureFlags(store.featureFlag),
   };
 };
 

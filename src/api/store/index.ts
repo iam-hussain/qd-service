@@ -28,5 +28,18 @@ export const storeRouter: Router = (() => {
     }
   );
 
+  router.patch(
+    '/feature-flags',
+    validateAccess('SIGN_STORE'),
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const serviceResponse = await storeService.featureFlag(req.auth.storeSlug, req.body);
+        handleServiceResponse(serviceResponse, res);
+      } catch (err) {
+        next(err);
+      }
+    }
+  );
+
   return router;
 })();

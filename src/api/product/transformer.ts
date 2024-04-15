@@ -26,7 +26,7 @@ const productTable = (
     image: imageTransformer.images(product.images),
     foodType: typeMap[product.type],
     categoryName: product?.category?.name,
-    categoryId: product?.category?.shortId,
+    categoryId: product?.categoryId || product?.category?.id,
     createdAt: dateTime.getDate(product.createdAt),
     createdDate: dateTime.getDateFormat(product.createdAt),
     createdDateTime: dateTime.getDateTimeFormat(product.createdAt),

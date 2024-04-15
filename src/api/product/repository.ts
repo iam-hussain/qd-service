@@ -37,6 +37,14 @@ export const productRepository = {
       orderBy: {
         createdAt: 'desc',
       },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
   },
   create: (slug: string, { categoryId, ...data }: ProductCreateSchemaType) => {

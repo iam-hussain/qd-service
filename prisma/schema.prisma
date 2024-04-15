@@ -65,6 +65,7 @@ model Store {
   taxes       Json[]
   fees        Json[]
   extra       Json            @default("{}")
+  featureFlag Json            @default("{}")
   connections UsersOnStores[]
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt

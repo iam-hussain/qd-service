@@ -1,3 +1,5 @@
+import { mergeFeatureFlags } from '@iam-hussain/qd-copilot';
+
 import { storeRepository } from '../store/repository';
 import { storeTransformer } from './transformer';
 
@@ -32,5 +34,22 @@ export const storeService = {
         },
       }
     );
+  },
+  featureFlag: async (slug: string, input: any) => {
+    const store = await storeRepository.findBySlug(slug);
+    if (!store) {
+      throw new Error('INVALID_STORE');
+    }
+
+    const featureFlag = mergeFeatureFlags(store.featureFlag, input);
+    await storeRepository.update(
+      {
+        id: store.id,
+      },
+      {
+        featureFlag,
+      }
+    );
+    return featureFlag;
   },
 };
