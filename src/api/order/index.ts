@@ -1,4 +1,4 @@
-import { OrderUpsertReqSchema, ParamIdReqSchema } from '@iam-hussain/qd-copilot';
+import { GetOrdersReqSchema, OrderUpsertReqSchema, ParamIdReqSchema } from '@iam-hussain/qd-copilot';
 import express, { NextFunction, Request, Response, Router } from 'express';
 
 import { handleServiceResponse, validateRequest } from '@/utils/http-handlers';
@@ -12,9 +12,9 @@ export const orderRouter: Router = (() => {
   router.get(
     '/orders',
     validateAccess('SIGN_STORE'),
-    validateRequest(ParamIdReqSchema),
+    validateRequest(GetOrdersReqSchema),
     async (req: Request, res: Response) => {
-      const serviceResponse = await orderService.orders(req.auth.storeSlug, req.params);
+      const serviceResponse = await orderService.orders(req.auth.storeSlug, req.params as any);
       handleServiceResponse(serviceResponse, res);
     }
   );

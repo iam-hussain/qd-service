@@ -5,13 +5,15 @@ import { handleServiceResponse, validateRequest } from '@/utils/http-handlers';
 import { validateAccess } from '@/utils/shield-handler';
 
 import { storeService } from './service';
+import { storeTransformer } from './transformer';
 
 export const storeRouter: Router = (() => {
   const router = express.Router();
 
   router.get('/', validateAccess('SIGN_STORE'), async (req: Request, res: Response) => {
     const serviceResponse = await storeService.store(req.auth.storeSlug);
-    handleServiceResponse(serviceResponse, res);
+    const transformedResponse = serviceResponse ? storeTransformer.store(serviceResponse) : {};
+    handleServiceResponse(transformedResponse, res);
   });
 
   router.patch(
