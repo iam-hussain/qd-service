@@ -168,7 +168,7 @@ const store = (store: Store) => {
     createdDateTime: dateTime.getDateTimeFormat(store.createdAt),
     updatedDate: dateTime.getDateFormat(store.updatedAt),
     updatedDateTime: dateTime.getDateTimeFormat(store.updatedAt),
-    featureFlags: getFeatureFlags(store.featureFlag),
+    featureFlags: getFeatureFlags(store.featureFlags),
   };
 };
 

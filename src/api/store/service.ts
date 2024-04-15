@@ -41,15 +41,15 @@ export const storeService = {
       throw new Error('INVALID_STORE');
     }
 
-    const featureFlag = mergeFeatureFlags(store.featureFlag, input);
+    const featureFlags = mergeFeatureFlags(store.featureFlags, input);
     await storeRepository.update(
       {
         id: store.id,
       },
       {
-        featureFlag,
+        featureFlags,
       }
     );
-    return featureFlag;
+    return featureFlags;
   },
 };
