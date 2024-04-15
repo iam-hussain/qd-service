@@ -40,7 +40,7 @@ jobs:
             nvm use
             git checkout .
             git pull
-            npm i
+            npm ci
             npm run prisma:setup
             npm run build
             pm2 restart qd-service

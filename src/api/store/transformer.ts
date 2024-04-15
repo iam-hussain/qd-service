@@ -159,7 +159,7 @@ const store = (store: Store) => {
     'fees',
     'extra',
   ]);
-  const { ...extra } = getStoreAdditional(store);
+  const extra = getStoreAdditional(store);
   return {
     ...picked,
     ...extra,
