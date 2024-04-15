@@ -1,9 +1,9 @@
 import { ItemCreateSchemaType } from '@iam-hussain/qd-copilot';
-import { PRODUCT_TYPE } from '@prisma/client';
+import { Item, PRODUCT_TYPE } from '@prisma/client';
 
 import dateTime from '@/libs/date-time';
 
-const getItems = (input: ItemCreateSchemaType, orderId: string, userId: string) => {
+const getEachItem = (input: ItemCreateSchemaType, orderId: string, userId: string) => {
   return {
     productId: input.productId,
     title: input.title || '',
@@ -17,11 +17,16 @@ const getItems = (input: ItemCreateSchemaType, orderId: string, userId: string) 
     placedAt: dateTime.getDate(),
     orderId: orderId,
     createdId: userId,
-    // createdBy: {
-    //   connect: {
-    //     id: userId,
-    //   },
-    // },
+  };
+};
+
+const getItemTypeDivided = (items: Item[]) => {
+  return {
+    items,
+    scheduled: items.filter((e) => dateTime.isAfterDate(e.placeAt)),
+    placed: items.filter((e) => e.placedAt && dateTime.isBeforeDate(e.placedAt)),
+    accepted: items.filter((e) => e.acceptedAt && dateTime.isBeforeDate(e.acceptedAt)),
+    prepared: items.filter((e) => e.prepared && dateTime.isBeforeDate(e.prepared)),
   };
 };
 
@@ -30,5 +35,6 @@ const getItems = (input: ItemCreateSchemaType, orderId: string, userId: string) 
 // };
 
 export const itemTransformer = {
-  getItems,
+  getEachItem,
+  getItemTypeDivided,
 };

@@ -1,10 +1,12 @@
 import { OrderUpsertSchemaType } from '@iam-hussain/qd-copilot';
+import { Item, Order } from '@prisma/client';
 
 import dateTime from '@/libs/date-time';
 
+import { itemTransformer } from '../items/transformer';
 import { storeTransformer } from '../store/transformer';
 
-const getOrder = (data: OrderUpsertSchemaType, returnDefault: boolean = false) => {
+const getOrderUpsert = (data: OrderUpsertSchemaType, returnDefault: boolean = false) => {
   const order: any = {};
 
   if (data?.type) {
@@ -53,6 +55,17 @@ const getOrder = (data: OrderUpsertSchemaType, returnDefault: boolean = false) =
   return order;
 };
 
+const getOrder = (input: (Order & { items: Item[] }) | null) => {
+  if (!input) {
+    return {};
+  }
+  return {
+    ...input,
+    ...itemTransformer.getItemTypeDivided(input?.items || []),
+  };
+};
+
 export const orderTransformer = {
+  getOrderUpsert,
   getOrder,
 };

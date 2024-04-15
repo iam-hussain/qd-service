@@ -21,8 +21,21 @@ export const getIDFormatDate = () => {
 export const getTodayStart = (date: string | Date = new Date()) => {
   return moment(date).startOf('day').utc().toDate();
 };
+
 export const getTodayEnd = (date: string | Date = new Date()) => {
   return moment(date).endOf('day').utc().toDate();
+};
+
+export const isBeforeDate = (date: string | Date = new Date()) => {
+  const current = moment();
+  const input = moment(date);
+  return input.isSameOrBefore(current);
+};
+
+export const isAfterDate = (date: string | Date = new Date()) => {
+  const current = moment();
+  const input = moment(date);
+  return input.isSameOrAfter(current);
 };
 
 export default {
@@ -32,4 +45,6 @@ export default {
   getIDFormatDate,
   getTodayStart,
   getTodayEnd,
+  isBeforeDate,
+  isAfterDate,
 };

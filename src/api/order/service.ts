@@ -8,7 +8,7 @@ import { orderTransformer } from './transformer';
 export const orderService = {
   order: async (id: string, slug: string) => {
     const repositoryResponse = await orderRepository.findByShortId(id, slug);
-    return repositoryResponse;
+    return orderTransformer.getOrder(repositoryResponse);
   },
   orders: async (slug: string, data: GetOrdersSchemaType) => {
     const { take, date, cursor, skip, type, types, status, statuses } = data;
@@ -64,7 +64,7 @@ export const orderService = {
   },
   upsert: async (slug: string, data: OrderUpsertSchemaType, userId: string) => {
     const { shortId, items = [] } = data;
-    const input = orderTransformer.getOrder(data);
+    const input = orderTransformer.getOrderUpsert(data);
     let repositoryResponse: any = null;
     const itemsInput: ItemCreateSchemaType[] = [];
 
@@ -78,12 +78,12 @@ export const orderService = {
     } else {
       repositoryResponse = await orderRepository.create(slug, input, userId);
     }
-    console.log({ repositoryResponse });
+
     if (!repositoryResponse || !repositoryResponse.id) {
       throw new Error('INVALID_INPUT');
     }
 
-    items.forEach((e: any) => itemsInput.push(itemTransformer.getItems(e, repositoryResponse.id, userId)));
+    items.forEach((e: any) => itemsInput.push(itemTransformer.getEachItem(e, repositoryResponse.id, userId)));
 
     if (itemsInput.length) {
       await itemRepository.createMany(itemsInput);
