@@ -24,6 +24,9 @@
     "script:prisma:truncate": "tsx ./scripts/truncate-db.ts",
     "script:generate:secret": "tsx ./scripts/generate-secret.ts"
   },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
