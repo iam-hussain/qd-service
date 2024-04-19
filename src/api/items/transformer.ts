@@ -20,9 +20,29 @@ const getEachItem = (input: ItemCreateSchemaType, orderId: string, userId: strin
   };
 };
 
+const getGroupedItems = (items: Item[]): Item[] => {
+  const grouped = items.reduce<{ [key in string]: Item }>((obj, item) => {
+    if (obj[item.productId]) {
+      const data = obj[item.productId];
+      obj[item.productId] = {
+        ...data,
+        quantity: data.quantity + item.quantity,
+        price: data.price + item.price,
+        total: data.total + item.total,
+      };
+    } else {
+      obj[item.productId] = item;
+    }
+    return obj;
+  }, {});
+
+  return Object.values(grouped);
+};
+
 const getItemTypeDivided = (items: Item[]) => {
   return {
     items,
+    summaryItems: getGroupedItems(items),
     scheduled: items.filter((e) => dateTime.isAfterDate(e.placeAt)),
     placed: items.filter((e) => e.placedAt && dateTime.isBeforeDate(e.placedAt)),
     accepted: items.filter((e) => e.acceptedAt && dateTime.isBeforeDate(e.acceptedAt)),
