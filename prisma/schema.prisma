@@ -201,6 +201,7 @@ model Item {
 }
 
 enum ITEM_STATUS {
+  DRAFT
   SHEDULED
   PLACED
   ACCEPTED
