@@ -27,7 +27,7 @@ const getItemTypeDivided = (items: Item[]) => {
   return {
     items,
     drafted,
-    summary: getGroupedItems(items),
+    summary: getGroupedItems(nonDraft),
     scheduled: nonDraft.filter((e) => dateTime.isAfterDate(e.placeAt)),
     placed: nonDraft.filter((e) => e.placedAt && dateTime.isBeforeDate(e.placedAt)),
     accepted: nonDraft.filter((e) => e.acceptedAt && dateTime.isBeforeDate(e.acceptedAt)),
