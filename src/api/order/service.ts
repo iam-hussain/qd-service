@@ -83,7 +83,7 @@ export const orderService = {
       throw new Error('INVALID_INPUT');
     }
 
-    items.forEach((e: any) => itemsInput.push(itemTransformer.getEachItem(e, repositoryResponse.id, userId)));
+    items.forEach((e: any) => itemsInput.push(itemTransformer.getCreateItemData(e, repositoryResponse.id, userId)));
 
     if (itemsInput.length) {
       await itemRepository.createMany(itemsInput);

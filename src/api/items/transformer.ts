@@ -1,9 +1,9 @@
-import { ItemCreateSchemaType } from '@iam-hussain/qd-copilot';
+import { getGroupedItems, ItemCreateSchemaType } from '@iam-hussain/qd-copilot';
 import { Item, PRODUCT_TYPE } from '@prisma/client';
 
 import dateTime from '@/libs/date-time';
 
-const getEachItem = (input: ItemCreateSchemaType, orderId: string, userId: string) => {
+const getCreateItemData = (input: ItemCreateSchemaType, orderId: string, userId: string) => {
   return {
     productId: input.productId,
     title: input.title || '',
@@ -17,36 +17,21 @@ const getEachItem = (input: ItemCreateSchemaType, orderId: string, userId: strin
     placedAt: dateTime.getDate(),
     orderId: orderId,
     createdId: userId,
+    status: input.status || 'DRAFT',
   };
 };
 
-const getGroupedItems = (items: Item[]): Item[] => {
-  const grouped = items.reduce<{ [key in string]: Item }>((obj, item) => {
-    if (obj[item.productId]) {
-      const data = obj[item.productId];
-      obj[item.productId] = {
-        ...data,
-        quantity: data.quantity + item.quantity,
-        price: data.price + item.price,
-        total: data.total + item.total,
-      };
-    } else {
-      obj[item.productId] = item;
-    }
-    return obj;
-  }, {});
-
-  return Object.values(grouped);
-};
-
 const getItemTypeDivided = (items: Item[]) => {
+  const drafted = items.filter((e) => e.status === 'DRAFT');
+  const nonDraft = items.filter((e) => e.status !== 'DRAFT');
   return {
     items,
-    summaryItems: getGroupedItems(items),
-    scheduled: items.filter((e) => dateTime.isAfterDate(e.placeAt)),
-    placed: items.filter((e) => e.placedAt && dateTime.isBeforeDate(e.placedAt)),
-    accepted: items.filter((e) => e.acceptedAt && dateTime.isBeforeDate(e.acceptedAt)),
-    prepared: items.filter((e) => e.prepared && dateTime.isBeforeDate(e.prepared)),
+    drafted,
+    summary: getGroupedItems(items),
+    scheduled: nonDraft.filter((e) => dateTime.isAfterDate(e.placeAt)),
+    placed: nonDraft.filter((e) => e.placedAt && dateTime.isBeforeDate(e.placedAt)),
+    accepted: nonDraft.filter((e) => e.acceptedAt && dateTime.isBeforeDate(e.acceptedAt)),
+    prepared: nonDraft.filter((e) => e.prepared && dateTime.isBeforeDate(e.prepared)),
   };
 };
 
@@ -55,6 +40,6 @@ const getItemTypeDivided = (items: Item[]) => {
 // };
 
 export const itemTransformer = {
-  getEachItem,
+  getCreateItemData,
   getItemTypeDivided,
 };

@@ -15,7 +15,7 @@ import { userTransformer } from '../user/transformer';
 export const authService = {
   signIn: async (input: SignInSchemaType) => {
     try {
-      const user = await userRepository.findByEmail(input.email);
+      const user = await userRepository.findByEmail(input.email.toLowerCase());
       if (!user) {
         return validationErrorResponse('email', 'user_not_exist');
       }
