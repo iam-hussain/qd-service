@@ -63,7 +63,8 @@ export const orderService = {
     return repositoryResponse;
   },
   upsert: async (slug: string, data: OrderUpsertSchemaType, userId: string) => {
-    const { shortId, items = [] } = data;
+    const { shortId, items } = data;
+
     const input = orderTransformer.getOrderUpsert(data);
     let repositoryResponse: any = null;
     const itemsInput: ItemCreateSchemaType[] = [];
@@ -75,6 +76,13 @@ export const orderService = {
         throw new Error('INVALID_INPUT');
       }
       repositoryResponse = await orderRepository.update(slug, fetchedOrder.shortId, input, userId);
+
+      const existingDraftItems = fetchedOrder.items.filter((e) => e?.status === 'DRAFT');
+      const draftedIds = existingDraftItems.map((e) => e.id);
+      console.log({ data: data.keepDraftItems, draftedIds });
+      if (!data.keepDraftItems && draftedIds.length) {
+        await itemRepository.deleteManyByIds(draftedIds);
+      }
     } else {
       repositoryResponse = await orderRepository.create(slug, input, userId);
     }

@@ -30,7 +30,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@iam-hussain/qd-copilot": "^1.1.15",
+    "@iam-hussain/qd-copilot": "^1.1.18",
     "@prisma/client": "^5.12.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
