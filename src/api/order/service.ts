@@ -1,7 +1,7 @@
 import { GetOrdersSchemaType, ItemCreateSchemaType, OrderUpsertSchemaType } from '@iam-hussain/qd-copilot';
 
-import { itemRepository } from '../items/repository';
-import { itemTransformer } from '../items/transformer';
+import { itemRepository } from '../item/repository';
+import { itemTransformer } from '../item/transformer';
 import { orderRepository } from './repository';
 import { orderTransformer } from './transformer';
 

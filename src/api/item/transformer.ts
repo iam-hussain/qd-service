@@ -1,4 +1,4 @@
-import { getGroupedItems, ItemCreateSchemaType } from '@iam-hussain/qd-copilot';
+import { getGroupedItems, ItemCreateSchemaType, ItemUpdateSchemaType } from '@iam-hussain/qd-copilot';
 import { Item, PRODUCT_TYPE } from '@prisma/client';
 
 import dateTime from '@/libs/date-time';
@@ -35,6 +35,15 @@ const getItemTypeDivided = (items: Item[]) => {
   };
 };
 
+const getOrderUpdate = (data: ItemUpdateSchemaType) => {
+  const item: any = {};
+
+  if (data?.type) {
+    item.type = data.type;
+  }
+  return item;
+};
+
 // const groupItems = (input: Item[]) => {
 //   const productMap = new M
 // };
@@ -42,4 +51,5 @@ const getItemTypeDivided = (items: Item[]) => {
 export const itemTransformer = {
   getCreateItemData,
   getItemTypeDivided,
+  getOrderUpdate,
 };

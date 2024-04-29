@@ -16,4 +16,21 @@ export const itemRepository = {
       },
     });
   },
+  update: async (slug: string, id: string, orderId: string, data: any, userId: string) => {
+    return database.item.update({
+      where: {
+        id,
+        order: {
+          id: orderId,
+          store: {
+            slug,
+          },
+        },
+      },
+      data: {
+        ...data,
+        updatedBy: userId,
+      },
+    });
+  },
 };
