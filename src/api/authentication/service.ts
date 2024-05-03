@@ -13,6 +13,20 @@ import { storeTransformer } from '../store/transformer';
 import { userTransformer } from '../user/transformer';
 
 export const authService = {
+  me: async (userID: string) => {
+    try {
+      const user = await userRepository.findById(userID);
+      if (!user) {
+        throw new Error('INVALID');
+      }
+      return userTransformer.userPublic(user);
+    } catch (ex) {
+      const errorMessage = `Error finding user data for ${userID}:, ${(ex as Error).message}`;
+      logger.error(errorMessage);
+      return new ServiceResponse(ResponseStatus.Failed, errorMessage, null, StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+  },
+
   signIn: async (input: SignInSchemaType) => {
     try {
       const user = await userRepository.findByEmail(input.email.toLowerCase());
