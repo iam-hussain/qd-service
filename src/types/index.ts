@@ -1,9 +1,11 @@
 export type JWT_OBJECT = {
-  username: string;
-  userId: string;
-  store: string;
-  storeId: string;
-  type: 'CUSTOMER' | 'SELLER';
+  user: {
+    id: string;
+    shortId: string;
+    type: 'CUSTOMER' | 'SELLER';
+  };
+  stores: { slug: string; id: string; shortId: string }[];
+  store: { slug: string; id: string; shortId: string };
 };
 
 export type JWT_DECODE = { data: JWT_OBJECT; iat: number; exp: number };
@@ -42,11 +44,14 @@ export type StoreAdditionalType = {
   };
 };
 
-export type RequestAuth = {
-  hasToken: boolean;
-  userId: string;
-  isSeller: boolean;
-  hasStore: boolean;
-  storeId: string;
-  storeSlug: string;
+export type RequestContext = {
+  tokenExist: boolean;
+  authenticated: boolean;
+  user: {
+    id: string;
+    shortId: string;
+    type: 'CUSTOMER' | 'SELLER';
+  };
+  stores: { slug: string; id: string; shortId: string }[];
+  store: { slug: string; id: string; shortId: string };
 };

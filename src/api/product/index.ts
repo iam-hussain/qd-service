@@ -10,7 +10,7 @@ export const productRouter: Router = (() => {
   const router = express.Router();
 
   router.get('/products', validateAccess('SIGN_STORE'), async (req: Request, res: Response) => {
-    const serviceResponse = await productService.products(req.auth.storeSlug);
+    const serviceResponse = await productService.products(req.context.store.slug);
     handleServiceResponse(serviceResponse, res);
   });
 
@@ -20,7 +20,7 @@ export const productRouter: Router = (() => {
     validateRequest(ParamIdReqSchema),
     async (req: Request, res: Response) => {
       const id = req.params.id || '';
-      const serviceResponse = await productService.product(id, req.auth.storeSlug);
+      const serviceResponse = await productService.product(id, req.context.store.slug);
       handleServiceResponse(serviceResponse, res);
     }
   );
@@ -31,7 +31,7 @@ export const productRouter: Router = (() => {
     validateRequest(ProductCreateReqSchema),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const serviceResponse = await productService.create(req.auth.storeSlug, req.body);
+        const serviceResponse = await productService.create(req.context.store.slug, req.body);
         handleServiceResponse(serviceResponse, res);
       } catch (err) {
         next(err);
@@ -46,7 +46,7 @@ export const productRouter: Router = (() => {
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const id = req.params.id || '';
-        const serviceResponse = await productService.update(req.auth.storeSlug, id, req.body);
+        const serviceResponse = await productService.update(req.context.store.slug, id, req.body);
         handleServiceResponse(serviceResponse, res);
       } catch (err) {
         next(err);
@@ -60,7 +60,7 @@ export const productRouter: Router = (() => {
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const id = req.params.id || '';
-        const serviceResponse = await productService.delete(req.auth.storeSlug, id);
+        const serviceResponse = await productService.delete(req.context.store.slug, id);
         handleServiceResponse(serviceResponse, res);
       } catch (err) {
         next(err);

@@ -1,5 +1,6 @@
 import { getGroupedItems, ItemCreateSchemaType, ItemUpdateSchemaType } from '@iam-hussain/qd-copilot';
 import { Item, PRODUCT_TYPE } from '@prisma/client';
+import _ from 'lodash';
 
 import dateTime from '@/libs/date-time';
 
@@ -36,17 +37,27 @@ const getItemTypeDivided = (items: Item[]) => {
 };
 
 const getOrderUpdate = (data: ItemUpdateSchemaType) => {
-  const item: any = {};
-
-  if (data?.type) {
-    item.type = data.type;
-  }
-  return item;
+  return _.pick(data, [
+    'id',
+    'title',
+    'note',
+    'type',
+    'price',
+    'quantity',
+    'total',
+    'position',
+    'placeAt',
+    'placedAt',
+    'acceptedAt',
+    'prepared',
+    'status',
+    'productId',
+    'orderId',
+    'createdId',
+    'updatedId',
+    'billId',
+  ]);
 };
-
-// const groupItems = (input: Item[]) => {
-//   const productMap = new M
-// };
 
 export const itemTransformer = {
   getCreateItemData,

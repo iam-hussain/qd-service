@@ -10,7 +10,7 @@ export const categoryRouter: Router = (() => {
   const router = express.Router();
 
   router.get('/categories', validateAccess('SIGN_STORE'), async (req: Request, res: Response) => {
-    const serviceResponse = await categoryService.categories(req.auth.storeSlug);
+    const serviceResponse = await categoryService.categories(req.context.store.slug);
     handleServiceResponse(serviceResponse, res);
   });
 
@@ -20,7 +20,7 @@ export const categoryRouter: Router = (() => {
     validateRequest(ParamIdReqSchema),
     async (req: Request, res: Response) => {
       const id = req.params.id || '';
-      const serviceResponse = await categoryService.category(id, req.auth.storeSlug);
+      const serviceResponse = await categoryService.category(id, req.context.store.slug);
       handleServiceResponse(serviceResponse, res);
     }
   );
@@ -31,7 +31,7 @@ export const categoryRouter: Router = (() => {
     validateRequest(CategoryCreateReqSchema),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const serviceResponse = await categoryService.create(req.auth.storeSlug, req.body);
+        const serviceResponse = await categoryService.create(req.context.store.slug, req.body);
         handleServiceResponse(serviceResponse, res);
       } catch (err) {
         next(err);
@@ -46,7 +46,7 @@ export const categoryRouter: Router = (() => {
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const id = req.params.id || '';
-        const serviceResponse = await categoryService.update(req.auth.storeSlug, id, req.body);
+        const serviceResponse = await categoryService.update(req.context.store.slug, id, req.body);
         handleServiceResponse(serviceResponse, res);
       } catch (err) {
         next(err);
@@ -61,7 +61,7 @@ export const categoryRouter: Router = (() => {
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const id = req.params.id || '';
-        const serviceResponse = await categoryService.delete(req.auth.storeSlug, id);
+        const serviceResponse = await categoryService.delete(req.context.store.slug, id);
         handleServiceResponse(serviceResponse, res);
       } catch (err) {
         next(err);

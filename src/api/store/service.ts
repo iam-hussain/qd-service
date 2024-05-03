@@ -4,6 +4,10 @@ import { storeRepository } from '../store/repository';
 import { storeTransformer } from './transformer';
 
 export const storeService = {
+  stores: async (id: string, type: 'SELLER' | 'CUSTOMER') => {
+    const stores = await storeRepository.findManyByUser(id, type);
+    return stores || [];
+  },
   store: async (slug: string) => {
     const store = await storeRepository.findBySlug(slug);
     return store;

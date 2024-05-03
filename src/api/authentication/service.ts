@@ -30,18 +30,29 @@ export const authService = {
       }
 
       const tokenData: JWT_OBJECT = {
-        type: 'SELLER',
-        username: user.username,
-        userId: user.id,
-        store: '',
-        storeId: '',
+        user: {
+          id: user.id,
+          shortId: user.shortId,
+          type: user.type,
+        },
+        stores: [],
+        store: {
+          shortId: '',
+          slug: '',
+          id: '',
+        },
       };
 
       const stores = await storeRepository.findManyByUser(user.id, user.type);
 
-      if (stores.length === 1) {
-        tokenData.store = stores[0].slug;
-        tokenData.storeId = stores[0].id;
+      tokenData.stores = stores.map((e) => ({
+        shortId: e.shortId,
+        slug: e.slug,
+        id: e.id,
+      }));
+
+      if (tokenData.stores.length === 1) {
+        tokenData.store = tokenData.stores[0];
       }
 
       return {

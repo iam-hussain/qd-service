@@ -10,8 +10,8 @@ const getPadded = (value: number) => {
   return value.toString().padStart(4, '0');
 };
 
-const generateOrderId = async (storeSlug: string) => {
-  const cached = cache.getKey(storeSlug);
+const generateOrderId = async (slug: string) => {
+  const cached = cache.getKey(slug);
   const current = dateTime.getIDFormatDate();
   if (cached) {
     const { count, date } = cached;
@@ -28,7 +28,7 @@ const generateOrderId = async (storeSlug: string) => {
           contains: dateTime.getIDFormatDate(),
         },
         store: {
-          slug: storeSlug,
+          slug,
         },
       },
       select: {
@@ -41,15 +41,15 @@ const generateOrderId = async (storeSlug: string) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_, id] = (lastEntry?.shortId || '').split('-');
     const count = Number(id) || 0;
-    cache.setKey(storeSlug, { count, date: current });
+    cache.setKey(slug, { count, date: current });
     return `${current}-${getPadded(count + 1)}`;
   }
 };
 
-const incrementOrderId = (storeSlug: string) => {
+const incrementOrderId = (slug: string) => {
   const current = dateTime.getIDFormatDate();
-  const cached = cache.getKey(storeSlug);
-  cache.setKey(storeSlug, { count: cached.count + 1, date: current });
+  const cached = cache.getKey(slug);
+  cache.setKey(slug, { count: cached.count + 1, date: current });
 };
 
 export const idSeries = {

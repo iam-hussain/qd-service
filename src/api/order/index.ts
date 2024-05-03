@@ -14,7 +14,7 @@ export const orderRouter: Router = (() => {
     validateAccess('SIGN_STORE'),
     validateRequest(GetOrdersReqSchema),
     async (req: Request, res: Response) => {
-      const serviceResponse = await orderService.orders(req.auth.storeSlug, req.params as any);
+      const serviceResponse = await orderService.orders(req.context.store.slug, req.params as any);
       handleServiceResponse(serviceResponse, res);
     }
   );
@@ -25,7 +25,7 @@ export const orderRouter: Router = (() => {
     validateRequest(ParamIdReqSchema),
     async (req: Request, res: Response) => {
       const id = req.params.id || '';
-      const serviceResponse = await orderService.order(id, req.auth.storeSlug);
+      const serviceResponse = await orderService.order(id, req.context.store.slug);
       handleServiceResponse(serviceResponse, res);
     }
   );
@@ -36,7 +36,7 @@ export const orderRouter: Router = (() => {
     validateRequest(OrderUpsertReqSchema),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const serviceResponse = await orderService.upsert(req.auth.storeSlug, req.body, req.auth.userId);
+        const serviceResponse = await orderService.upsert(req.context.store.slug, req.body, req.context.user.id);
         handleServiceResponse(serviceResponse, res);
       } catch (err) {
         next(err);
@@ -47,7 +47,7 @@ export const orderRouter: Router = (() => {
   router.delete('/order/:id', validateAccess('SIGN_STORE'), async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = req.params.id || '';
-      const serviceResponse = await orderService.delete(req.auth.storeSlug, id);
+      const serviceResponse = await orderService.delete(req.context.store.slug, id);
       handleServiceResponse(serviceResponse, res);
     } catch (err) {
       next(err);

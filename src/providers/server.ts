@@ -16,7 +16,7 @@ import errorHandler from '@/middleware/error-handler';
 // import rateLimiter from '@/middleware/rate-limiter';
 import requestLogger from '@/middleware/request-logger';
 import { env } from '@/providers/env-config';
-import { RequestAuth } from '@/types';
+import { RequestContext } from '@/types';
 
 const logger = pino({ name: 'server start' });
 const app: Express = express();
@@ -36,34 +36,36 @@ app.use(express.json());
 app.use(requestLogger());
 
 app.use((req: any, res, next) => {
-  let auth: RequestAuth = {
-    hasToken: false,
-    isSeller: false,
-    hasStore: false,
-    storeId: '',
-    userId: '',
-    storeSlug: '',
+  let context: RequestContext = {
+    tokenExist: false,
+    authenticated: false,
+    user: {
+      id: '',
+      shortId: '',
+      type: 'CUSTOMER',
+    },
+    stores: [],
+    store: {
+      shortId: '',
+      slug: '',
+      id: '',
+    },
   };
   const token = authTransformer.getToken(req);
   if (token) {
-    auth = {
-      ...auth,
-      hasToken: true,
+    context = {
+      ...context,
+      tokenExist: true,
     };
     const decoded = jwt.decode(token);
 
     if (decoded) {
-      const payload = authTransformer.extractToken(decoded);
-
-      auth = {
-        ...auth,
-        ...payload,
-      };
+      context = authTransformer.extractToken(decoded);
     }
   }
 
-  req.auth = auth;
-  console.log(JSON.stringify({ auth: req.auth, body: req.body, params: req.params, header: req.header }));
+  req.context = context;
+
   next();
 });
 

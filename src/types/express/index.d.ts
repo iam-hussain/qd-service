@@ -1,9 +1,9 @@
-import { RequestAuth } from '..';
+import { RequestContext } from '..';
 
 declare global {
   declare namespace Express {
     interface Request {
-      auth: RequestAuth;
+      context: RequestContext;
     }
   }
 }
