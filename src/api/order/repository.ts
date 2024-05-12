@@ -40,6 +40,9 @@ export const orderRepository = {
         },
         ...data,
       },
+      include: {
+        items: true,
+      },
     });
     idSeries.incrementOrderId(slug);
     return response;
@@ -59,6 +62,9 @@ export const orderRepository = {
             id: userId,
           },
         },
+      },
+      include: {
+        items: true,
       },
     });
   },

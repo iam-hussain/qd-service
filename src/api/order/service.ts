@@ -1,4 +1,4 @@
-import { GetOrdersSchemaType, ItemCreateSchemaType, OrderUpsertSchemaType } from '@iam-hussain/qd-copilot';
+import { GetOrdersSchemaType, OrderUpsertSchemaType } from '@iam-hussain/qd-copilot';
 
 import { itemRepository } from '../item/repository';
 import { itemTransformer } from '../item/transformer';
@@ -59,15 +59,22 @@ export const orderService = {
     if (statuses && statuses.length) {
       props.where.status = { in: statuses };
     }
-    const repositoryResponse = await orderRepository.findManyByStoreSlug(props);
-    return repositoryResponse;
+    const repositoryResponse = (await orderRepository.findManyByStoreSlug(props)) as any[];
+    return repositoryResponse.map(orderTransformer.getOrder);
   },
   upsert: async (slug: string, data: OrderUpsertSchemaType, userId: string) => {
     const { shortId, items } = data;
 
     const input = orderTransformer.getOrderUpsert(data);
     let repositoryResponse: any = null;
-    const itemsInput: ItemCreateSchemaType[] = [];
+    const itemsInput = items.map((e: any) => itemTransformer.getConnectItemData(e, userId));
+
+    if (itemsInput.length) {
+      input.items = {
+        ...(input?.items || {}),
+        create: itemsInput,
+      };
+    }
 
     if (shortId) {
       const fetchedOrder = await orderRepository.findByShortId(shortId, slug);
@@ -75,12 +82,18 @@ export const orderService = {
       if (!fetchedOrder || !fetchedOrder.id) {
         throw new Error('INVALID_INPUT');
       }
-      repositoryResponse = await orderRepository.update(slug, fetchedOrder.shortId, input, userId);
-
       const existingDraftItems = fetchedOrder.items.filter((e) => e?.status === 'DRAFT');
       const draftedIds = existingDraftItems.map((e) => e.id);
-      console.log({ data: data.keepDraftItems, draftedIds });
-      if (!data.keepDraftItems && draftedIds.length) {
+
+      if (fetchedOrder.items.length) {
+        input.items = {
+          ...(input?.items || {}),
+          disconnect: draftedIds.map((e) => ({ id: e })),
+        };
+      }
+
+      repositoryResponse = await orderRepository.update(slug, fetchedOrder.shortId, input, userId);
+      if (draftedIds.length) {
         await itemRepository.deleteManyByIds(draftedIds);
       }
     } else {
@@ -90,15 +103,7 @@ export const orderService = {
     if (!repositoryResponse || !repositoryResponse.id) {
       throw new Error('INVALID_INPUT');
     }
-
-    items.forEach((e: any) => itemsInput.push(itemTransformer.getCreateItemData(e, repositoryResponse.id, userId)));
-
-    if (itemsInput.length) {
-      await itemRepository.createMany(itemsInput);
-    }
-
-    console.log({ shortId, repositoryResponse });
-    return repositoryResponse; // await orderRepository.findByShortId(shortId || repositoryResponse.id, slug);
+    return orderTransformer.getOrder(repositoryResponse);
   },
   delete: async (slug: string, id: string) => {
     const repositoryResponse = await orderRepository.deleteById(slug, id);
