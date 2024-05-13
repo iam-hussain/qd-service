@@ -22,7 +22,19 @@ export const orderRepository = {
   findManyByStoreSlug: async (data: any) => {
     return database.order.findMany(data);
   },
-
+  findManyBySlugForKitchen: async (slug: string) => {
+    return database.order.findMany({
+      where: {
+        status: 'IN_PROGRESS',
+        store: {
+          slug,
+        },
+      },
+      include: {
+        items: true,
+      },
+    });
+  },
   create: async (slug: string, data: any, userId: string) => {
     const response = await database.order.create({
       data: {

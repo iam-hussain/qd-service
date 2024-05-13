@@ -6,6 +6,10 @@ import { orderRepository } from './repository';
 import { orderTransformer } from './transformer';
 
 export const orderService = {
+  kitchenOrders: async (slug: string) => {
+    const orders = await orderRepository.findManyBySlugForKitchen(slug);
+    return orderTransformer.getKitchenOrders(orders);
+  },
   order: async (id: string, slug: string) => {
     const repositoryResponse = await orderRepository.findByShortId(id, slug);
     return orderTransformer.getOrder(repositoryResponse);

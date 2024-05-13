@@ -65,7 +65,15 @@ const getOrder = (input: (Order & { items: Item[] }) | null) => {
   };
 };
 
+const getKitchenOrders = (input: (Order & { items: Item[] })[]) => {
+  const orders = input; //.map((each) => {});
+  return {
+    orders,
+  };
+};
+
 export const orderTransformer = {
   getOrderUpsert,
   getOrder,
+  getKitchenOrders,
 };

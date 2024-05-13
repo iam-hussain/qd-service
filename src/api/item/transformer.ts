@@ -63,7 +63,7 @@ const getItemTypeDivided = (input: Item[]) => {
   };
 };
 
-const getOrderUpdate = (data: ItemUpdateSchemaType) => {
+const getUpdateItemData = (data: ItemUpdateSchemaType) => {
   return _.pick(data, [
     'id',
     'title',
@@ -90,5 +90,5 @@ export const itemTransformer = {
   getConnectItemData,
   getCreateItemData,
   getItemTypeDivided,
-  getOrderUpdate,
+  getUpdateItemData,
 };

@@ -8,8 +8,8 @@ export const itemService = {
     if (!data?.orderId) {
       return {};
     }
-    const input = itemTransformer.getOrderUpdate(data);
-    const repositoryResponse = await itemRepository.update(slug, id, input.orderId, input, userId);
+    const input = itemTransformer.getUpdateItemData(data);
+    const repositoryResponse = await itemRepository.update(slug, id, data.orderId, input, userId);
     return repositoryResponse;
   },
 };
