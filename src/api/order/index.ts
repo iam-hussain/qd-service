@@ -20,6 +20,16 @@ export const orderRouter: Router = (() => {
   );
 
   router.get(
+    '/orders/kot',
+    validateAccess('SIGN_STORE'),
+    validateRequest(GetOrdersReqSchema),
+    async (req: Request, res: Response) => {
+      const serviceResponse = await orderService.kitchenOrders(req.context.store.slug);
+      handleServiceResponse(serviceResponse, res);
+    }
+  );
+
+  router.get(
     '/order/:id',
     validateAccess('SIGN_STORE'),
     validateRequest(ParamIdReqSchema),

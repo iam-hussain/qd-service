@@ -66,9 +66,13 @@ const getOrder = (input: (Order & { items: Item[] }) | null) => {
 };
 
 const getKitchenOrders = (input: (Order & { items: Item[] })[]) => {
-  const orders = input; //.map((each) => {});
+  let items: Item[] = [];
+  input.forEach((each) => {
+    items = [...items, ...each.items.map((e) => ({ ...e, orderShortId: each.shortId }))];
+  });
   return {
-    orders,
+    orders: input.map(getOrder),
+    items: itemTransformer.getItemTypeDivided(items),
   };
 };
 
