@@ -1,5 +1,5 @@
 import { getGroupedItems, ItemCreateSchemaType, ItemUpdateSchemaType } from '@iam-hussain/qd-copilot';
-import { Item, PRODUCT_TYPE } from '@prisma/client';
+import { Item, ITEM_STATUS, PRODUCT_TYPE } from '@prisma/client';
 import _ from 'lodash';
 
 import dateTime from '@/libs/date-time';
@@ -56,15 +56,19 @@ const getItemTypeDivided = (input: Item[]) => {
     items: nonDraft,
     drafted,
     summary: getGroupedItems(nonDraft),
-    scheduled: nonDraft.filter((e) => dateTime.isAfterDate(e.placeAt)),
-    placed: nonDraft.filter((e) => e.placedAt && dateTime.isBeforeDate(e.placedAt)),
-    accepted: nonDraft.filter((e) => e.acceptedAt && dateTime.isBeforeDate(e.acceptedAt)),
-    prepared: nonDraft.filter((e) => e.prepared && dateTime.isBeforeDate(e.prepared)),
+    scheduled: nonDraft.filter((e) => e.status === ITEM_STATUS.SCHEDULED && dateTime.isAfterDate(e.placeAt)),
+    placed: nonDraft.filter((e) => e.status === ITEM_STATUS.PLACED && e.placedAt && dateTime.isBeforeDate(e.placedAt)),
+    accepted: nonDraft.filter(
+      (e) => e.status === ITEM_STATUS.ACCEPTED && e.acceptedAt && dateTime.isBeforeDate(e.acceptedAt)
+    ),
+    prepared: nonDraft.filter(
+      (e) => e.status === ITEM_STATUS.PREPARED && e.preparedAt && dateTime.isBeforeDate(e.preparedAt)
+    ),
   };
 };
 
-const getUpdateItemData = (data: ItemUpdateSchemaType) => {
-  return _.pick(data, [
+const getUpdateItemData = (data: ItemUpdateSchemaType, userId: string) => {
+  const output = _.pick(data, [
     'id',
     'title',
     'note',
@@ -76,14 +80,19 @@ const getUpdateItemData = (data: ItemUpdateSchemaType) => {
     'placeAt',
     'placedAt',
     'acceptedAt',
-    'prepared',
+    'preparedAt',
     'status',
-    'productId',
-    'orderId',
-    'createdId',
-    'updatedId',
     'billId',
   ]);
+
+  return {
+    ...output,
+    updatedBy: {
+      connect: {
+        id: userId,
+      },
+    },
+  };
 };
 
 export const itemTransformer = {

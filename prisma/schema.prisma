@@ -184,7 +184,7 @@ model Item {
   placeAt    DateTime     @default(now())
   placedAt   DateTime?
   acceptedAt DateTime?
-  prepared   DateTime?
+  preparedAt DateTime?
   status     ITEM_STATUS  @default(PLACED)
   product    Product      @relation(fields: [productId], references: [id])
   productId  String

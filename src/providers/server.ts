@@ -7,6 +7,7 @@ import { authRouter } from '@/api/authentication';
 import { authTransformer } from '@/api/authentication/transfomer';
 import { categoryRouter } from '@/api/category';
 import { healthCheckRouter } from '@/api/health-check';
+import { itemRouter } from '@/api/item';
 import { orderRouter } from '@/api/order';
 import { productRouter } from '@/api/product';
 import { storeRouter } from '@/api/store';
@@ -76,6 +77,7 @@ app.use('/api/store', storeRouter);
 app.use('/api/store', productRouter);
 app.use('/api/store', categoryRouter);
 app.use('/api/store', orderRouter);
+app.use('/api/store', itemRouter);
 app.use('/api/user', userRouter);
 
 // Error handlers

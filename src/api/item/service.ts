@@ -8,8 +8,9 @@ export const itemService = {
     if (!data?.orderId) {
       return {};
     }
-    const input = itemTransformer.getUpdateItemData(data);
-    const repositoryResponse = await itemRepository.update(slug, id, data.orderId, input, userId);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const input = itemTransformer.getUpdateItemData(data, userId);
+    const repositoryResponse = await itemRepository.update(slug, id, data.orderId, input);
     return repositoryResponse;
   },
 };

@@ -16,7 +16,7 @@ export const itemRepository = {
       },
     });
   },
-  update: async (slug: string, id: string, orderId: string, data: any, userId: string) => {
+  update: async (slug: string, id: string, orderId: string, data: any) => {
     return database.item.update({
       where: {
         id,
@@ -29,7 +29,6 @@ export const itemRepository = {
       },
       data: {
         ...data,
-        updatedBy: userId,
       },
     });
   },
