@@ -10,7 +10,14 @@ export const productRepository = {
         store: {
           slug,
         },
-        categoryId: id,
+        OR: [
+          {
+            categoryId: id,
+          },
+          {
+            kitchenCategoryId: id,
+          },
+        ],
       },
     });
   },
@@ -24,6 +31,7 @@ export const productRepository = {
       },
       include: {
         category: true,
+        kitchenCategory: true,
       },
     });
   },
@@ -44,10 +52,16 @@ export const productRepository = {
             name: true,
           },
         },
+        kitchenCategory: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
   },
-  create: (slug: string, { categoryId, ...data }: ProductCreateSchemaType) => {
+  create: (slug: string, { categoryId, kitchenCategoryId, ...data }: ProductCreateSchemaType) => {
     return database.product.create({
       data: {
         ...data,
@@ -63,10 +77,19 @@ export const productRepository = {
             id: categoryId,
           },
         },
+        ...(kitchenCategoryId
+          ? {
+              kitchenCategory: {
+                connect: {
+                  id: kitchenCategoryId,
+                },
+              },
+            }
+          : {}),
       },
     });
   },
-  update: (slug: string, id: string, { categoryId, ...data }: ProductUpdateSchemaType) => {
+  update: (slug: string, id: string, { categoryId, kitchenCategoryId, ...data }: ProductUpdateSchemaType) => {
     return database.product.update({
       where: {
         id,
@@ -81,6 +104,15 @@ export const productRepository = {
               category: {
                 connect: {
                   id: categoryId,
+                },
+              },
+            }
+          : {}),
+        ...(kitchenCategoryId
+          ? {
+              kitchenCategory: {
+                connect: {
+                  id: kitchenCategoryId,
                 },
               },
             }

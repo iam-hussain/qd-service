@@ -38,6 +38,8 @@ model User {
   itemsUpdated     Item[]          @relation("updatedBy")
   billsCreated     Bill[]          @relation("biller")
   productsDisabled Product[]       @relation("diabled")
+  tokensCreated    Token[]         @relation("createdBy")
+  tokensUpdated    Token[]         @relation("updatedBy")
 
   @@unique([type, username])
 }
@@ -73,6 +75,7 @@ model Store {
   products     Product[]
   orders       Order[]
   bills        Bill[]
+  tokens       Token[]
 }
 
 model UsersOnStores {
@@ -89,37 +92,46 @@ model UsersOnStores {
 }
 
 model Category {
-  id        String    @id @default(uuid())
-  shortId   String    @unique
-  name      String
-  deck      String?
-  position  Int       @default(0)
-  image     Json?
-  products  Product[]
-  store     Store     @relation(fields: [storeId], references: [id])
-  storeId   String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id              String        @id @default(uuid())
+  shortId         String        @unique
+  name            String
+  deck            String?
+  position        Int           @default(0)
+  image           Json?
+  type            CATEGORY_TYPE @default(DEFAULT)
+  products        Product[]     @relation("category")
+  kitchenProducts Product[]     @relation("kitchenCategory")
+  store           Store         @relation(fields: [storeId], references: [id])
+  storeId         String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+enum CATEGORY_TYPE {
+  DEFAULT
+  KITCHEN
 }
 
 model Product {
-  id         String       @id @default(uuid())
-  shortId    String       @unique
-  name       String
-  deck       String?
-  price      Float        @default(0)
-  type       PRODUCT_TYPE @default(NON_VEG)
-  images     Json[]
-  store      Store        @relation(fields: [storeId], references: [id])
-  storeId    String
-  category   Category     @relation(fields: [categoryId], references: [id])
-  categoryId String
-  disabledBy User?        @relation("diabled", fields: [userId], references: [id])
-  disabledAt DateTime?
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-  items      Item[]
-  userId     String?
+  id                String       @id @default(uuid())
+  shortId           String       @unique
+  name              String
+  deck              String?
+  price             Float        @default(0)
+  type              PRODUCT_TYPE @default(NON_VEG)
+  images            Json[]
+  store             Store        @relation(fields: [storeId], references: [id])
+  storeId           String
+  category          Category     @relation("category", fields: [categoryId], references: [id])
+  categoryId        String
+  kitchenCategory   Category?    @relation("kitchenCategory", fields: [kitchenCategoryId], references: [id])
+  kitchenCategoryId String?
+  disabledBy        User?        @relation("diabled", fields: [userId], references: [id])
+  disabledAt        DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  items             Item[]
+  userId            String?
 }
 
 enum PRODUCT_TYPE {
@@ -152,6 +164,7 @@ model Order {
   storeId     String
   items       Item[]
   bill        Bill?
+  tokens      Token[]
 
   @@unique([shortId, storeId])
 }
@@ -198,6 +211,8 @@ model Item {
   updatedAt  DateTime     @updatedAt
   bill       Bill?        @relation(fields: [billId], references: [id])
   billId     String?
+  tokens     Token?       @relation(fields: [tokenId], references: [id])
+  tokenId    String?
 }
 
 enum ITEM_STATUS {
@@ -205,8 +220,28 @@ enum ITEM_STATUS {
   SCHEDULED
   PLACED
   ACCEPTED
-  PROGRESS
   PREPARED
+  OUT_OF_STOCK
+}
+
+model Token {
+  id          String    @id @default(uuid())
+  shortId     String    @unique
+  printed     Boolean   @default(false)
+  printedAt   DateTime?
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  items       Item[]
+  order       Order?    @relation(fields: [orderId], references: [id])
+  orderId     String?
+  store       Store     @relation(fields: [storeId], references: [id])
+  storeId     String
+  createdBy   User?     @relation("createdBy", fields: [createdId], references: [id])
+  createdId   String?
+  createdAt   DateTime  @default(now())
+  updatedBy   User?     @relation("updatedBy", fields: [updatedId], references: [id])
+  updatedId   String?
+  updatedAt   DateTime  @updatedAt
 }
 
 model Bill {

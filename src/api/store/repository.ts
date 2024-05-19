@@ -34,4 +34,14 @@ export const storeRepository = {
       data,
     });
   },
+  findFeatureFlagsBySlug: async (slug: string) => {
+    return database.store.findUnique({
+      where: {
+        slug,
+      },
+      select: {
+        featureFlags: true,
+      },
+    });
+  },
 };

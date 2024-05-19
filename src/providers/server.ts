@@ -1,3 +1,4 @@
+import { defaultFeatureFlags, getFeatureFlags } from '@iam-hussain/qd-copilot';
 import cors from 'cors';
 import express, { Express } from 'express';
 import helmet from 'helmet';
@@ -11,6 +12,7 @@ import { itemRouter } from '@/api/item';
 import { orderRouter } from '@/api/order';
 import { productRouter } from '@/api/product';
 import { storeRouter } from '@/api/store';
+import { storeRepository } from '@/api/store/repository';
 import { userRouter } from '@/api/user';
 import jwt from '@/libs/jwt';
 import errorHandler from '@/middleware/error-handler';
@@ -36,7 +38,7 @@ app.use(express.json());
 // Request logging
 app.use(requestLogger());
 
-app.use((req: any, res, next) => {
+app.use(async (req: any, res, next) => {
   let context: RequestContext = {
     tokenExist: false,
     authenticated: false,
@@ -51,6 +53,7 @@ app.use((req: any, res, next) => {
       slug: '',
       id: '',
     },
+    featureFlags: defaultFeatureFlags,
   };
   const token = authTransformer.getToken(req);
   if (token) {
@@ -62,6 +65,10 @@ app.use((req: any, res, next) => {
 
     if (decoded) {
       context = authTransformer.extractToken(decoded);
+      if (context.store.slug) {
+        const flags = await storeRepository.findFeatureFlagsBySlug(context.store.slug);
+        context.featureFlags = getFeatureFlags(flags);
+      }
     }
   }
 

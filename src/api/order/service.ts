@@ -1,7 +1,10 @@
 import { GetOrdersSchemaType, OrderUpsertSchemaType } from '@iam-hussain/qd-copilot';
+import { ITEM_STATUS } from '@prisma/client';
 
 import { itemRepository } from '../item/repository';
 import { itemTransformer } from '../item/transformer';
+import { tokenRepository } from '../token/repository';
+import { tokenTransformer } from '../token/transformer';
 import { orderRepository } from './repository';
 import { orderTransformer } from './transformer';
 
@@ -107,7 +110,17 @@ export const orderService = {
     if (!repositoryResponse || !repositoryResponse.id) {
       throw new Error('INVALID_INPUT');
     }
-    return orderTransformer.getOrder(repositoryResponse);
+    const tokenData = tokenTransformer.getConnectTokenData(
+      (repositoryResponse?.items || []).filter((e: any) => e.status === ITEM_STATUS.PLACED),
+      slug,
+      repositoryResponse.id,
+      userId
+    );
+    const token = await tokenRepository.create(tokenData);
+    return orderTransformer.getOrder({
+      ...repositoryResponse,
+      tokens: [...(repositoryResponse.tokens || []), token],
+    });
   },
   delete: async (slug: string, id: string) => {
     const repositoryResponse = await orderRepository.deleteById(slug, id);

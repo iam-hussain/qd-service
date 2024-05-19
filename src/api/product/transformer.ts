@@ -13,6 +13,7 @@ const typeMap: { [key in PRODUCT_TYPE]: string } = {
 const productTable = (
   product: Product & {
     category?: Partial<Category> | null;
+    kitchenCategory?: Partial<Category> | null;
   }
 ) => {
   const picked = _.pick(product, ['id', 'shortId', 'name', 'deck', 'price', 'outOfStock', 'type']);
@@ -27,6 +28,8 @@ const productTable = (
     foodType: typeMap[product.type],
     categoryName: product?.category?.name,
     categoryId: product?.categoryId || product?.category?.id,
+    kitchenCategoryName: product?.kitchenCategory?.name || '',
+    kitchenCategoryId: product?.kitchenCategoryId || product?.kitchenCategory?.id || '',
     createdAt: dateTime.getDate(product.createdAt),
     createdDate: dateTime.getDateFormat(product.createdAt),
     createdDateTime: dateTime.getDateTimeFormat(product.createdAt),

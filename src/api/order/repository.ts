@@ -6,7 +6,6 @@ import database from '@/providers/database';
 
 export const orderRepository = {
   findByShortId: async (shortId: string, slug: string) => {
-    console.log({ shortId, slug });
     return database.order.findUnique({
       where: {
         shortId,
@@ -16,6 +15,7 @@ export const orderRepository = {
       },
       include: {
         items: true,
+        tokens: true,
       },
     });
   },
@@ -32,6 +32,7 @@ export const orderRepository = {
       },
       include: {
         items: true,
+        tokens: true,
       },
     });
   },
@@ -54,6 +55,7 @@ export const orderRepository = {
       },
       include: {
         items: true,
+        tokens: true,
       },
     });
     idSeries.incrementOrderId(slug);
@@ -77,6 +79,7 @@ export const orderRepository = {
       },
       include: {
         items: true,
+        tokens: true,
       },
     });
   },

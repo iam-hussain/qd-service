@@ -1,3 +1,5 @@
+import { defaultFeatureFlags } from '@iam-hussain/qd-copilot';
+
 import { JWT_DECODE, RequestContext } from '@/types';
 
 export const authTransformer = {
@@ -19,6 +21,7 @@ export const authTransformer = {
     return {
       authenticated: Boolean(data?.user?.id),
       tokenExist: true,
+      featureFlags: defaultFeatureFlags,
       ...data,
     };
   },

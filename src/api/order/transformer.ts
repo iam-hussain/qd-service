@@ -1,10 +1,11 @@
 import { OrderUpsertSchemaType } from '@iam-hussain/qd-copilot';
-import { Item, Order } from '@prisma/client';
+import { Item, Order, Token } from '@prisma/client';
 
 import dateTime from '@/libs/date-time';
 
 import { itemTransformer } from '../item/transformer';
 import { storeTransformer } from '../store/transformer';
+import { tokenTransformer } from '../token/transformer';
 
 const getOrderUpsert = (data: OrderUpsertSchemaType, returnDefault: boolean = false) => {
   const order: any = {};
@@ -55,24 +56,30 @@ const getOrderUpsert = (data: OrderUpsertSchemaType, returnDefault: boolean = fa
   return order;
 };
 
-const getOrder = (input: (Order & { items: Item[] }) | null) => {
+const getOrder = (input: (Order & { items: Item[]; tokens: Token[] }) | null) => {
   if (!input) {
     return {};
   }
   return {
     ...input,
     ...itemTransformer.getItemTypeDivided(input?.items || []),
+    tokens: (input.tokens || []).map(tokenTransformer.getToken),
   };
 };
 
-const getKitchenOrders = (input: (Order & { items: Item[] })[]) => {
+const getKitchenOrders = (input: (Order & { items: Item[]; tokens: Token[] })[]) => {
   let items: Item[] = [];
+  let tokens: Token[] = [];
+
   input.forEach((each) => {
     items = [...items, ...each.items.map((e) => ({ ...e, orderShortId: each.shortId }))];
+    tokens = [...tokens, ...each.tokens.map((e) => ({ ...e, orderShortId: each.shortId, items: each.items }))];
   });
+
   return {
     orders: input.map(getOrder),
     items: itemTransformer.getItemTypeDivided(items),
+    tokens: tokens.map(tokenTransformer.getToken),
   };
 };
 

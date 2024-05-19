@@ -11,7 +11,7 @@ const category = (
     };
   }
 ) => {
-  const picked = _.pick(category, ['id', 'shortId', 'name', 'deck', 'position']);
+  const picked = _.pick(category, ['id', 'shortId', 'name', 'deck', 'position', 'type']);
   return {
     ...picked,
     productsConnected: category?._count?.products || 0,

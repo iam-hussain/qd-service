@@ -1,3 +1,5 @@
+import { FeatureFlagsType } from '@iam-hussain/qd-copilot';
+
 export type JWT_OBJECT = {
   user: {
     id: string;
@@ -54,4 +56,5 @@ export type RequestContext = {
   };
   stores: { slug: string; id: string; shortId: string }[];
   store: { slug: string; id: string; shortId: string };
+  featureFlags: FeatureFlagsType;
 };
