@@ -46,6 +46,7 @@ export const storeService = {
     }
 
     const featureFlags = mergeFeatureFlags(store.featureFlags, input);
+
     await storeRepository.update(
       {
         id: store.id,

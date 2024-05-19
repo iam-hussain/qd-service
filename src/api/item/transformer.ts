@@ -1,6 +1,6 @@
 import { getGroupedItems, ItemCreateSchemaType, ItemUpdateSchemaType } from '@iam-hussain/qd-copilot';
 import { Item, PRODUCT_TYPE } from '@prisma/client';
-import _, { sortBy } from 'lodash';
+import _ from 'lodash';
 
 import dateTime from '@/libs/date-time';
 
@@ -48,7 +48,7 @@ const getCreateItemData = (input: ItemCreateSchemaType, orderId: string, userId:
 };
 
 const getItemTypeDivided = (input: Item[]) => {
-  const items = sortBy(input, 'createdAt');
+  const items = _.sortBy(input, 'createdAt');
   const drafted = items.filter((e) => e.status === 'DRAFT');
   const nonDraft = items.filter((e) => e.status !== 'DRAFT');
   return {
