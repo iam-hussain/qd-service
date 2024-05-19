@@ -42,6 +42,5 @@ jobs:
             git pull
             npm ci
             npm run prisma:setup
-            npm run prisma:reset
             npm run build
             pm2 restart qd-service
