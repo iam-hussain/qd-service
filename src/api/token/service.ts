@@ -11,6 +11,13 @@ export const tokenService = {
 
   update: async (slug: string, id: string, body: Partial<TokenUpdateSchemaType>, userId: string) => {
     const { orderId, ...data } = body;
+    console.log({
+      slug,
+      id,
+      orderId,
+      data,
+      userId,
+    });
     const repositoryResponse = await tokenRepository.update(slug, id, orderId || '', data, userId);
     return repositoryResponse;
   },

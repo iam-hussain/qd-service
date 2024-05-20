@@ -14,7 +14,7 @@ export const tokenRepository = {
         OR: [
           {
             completedAt: {
-              lt: fiveHoursAgo,
+              gt: fiveHoursAgo,
             },
           },
           {
@@ -46,6 +46,13 @@ export const tokenRepository = {
     });
   },
   update: (slug: string, id: string, orderId: string, data: Partial<TokenUpdateSchemaType>, userId: string) => {
+    console.log({
+      id,
+      orderId,
+      store: {
+        slug,
+      },
+    });
     return database.token.update({
       where: {
         id,
