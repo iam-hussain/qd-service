@@ -105,6 +105,8 @@ model Category {
   storeId         String
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+  kitchenItems    Item[]
+  tokens          Token[]
 }
 
 enum CATEGORY_TYPE {
@@ -186,33 +188,35 @@ enum ORDER_STATUS {
 }
 
 model Item {
-  id         String       @id @default(uuid())
-  title      String?
-  note       String?
-  type       PRODUCT_TYPE @default(NON_VEG)
-  price      Float        @default(0)
-  quantity   Int          @default(0)
-  total      Float        @default(0)
-  position   Int          @default(0)
-  placeAt    DateTime     @default(now())
-  placedAt   DateTime?
-  acceptedAt DateTime?
-  preparedAt DateTime?
-  status     ITEM_STATUS  @default(PLACED)
-  product    Product      @relation(fields: [productId], references: [id])
-  productId  String
-  order      Order?       @relation(fields: [orderId], references: [id])
-  orderId    String?
-  createdBy  User?        @relation("createdBy", fields: [createdId], references: [id])
-  createdId  String?
-  createdAt  DateTime     @default(now())
-  updatedBy  User?        @relation("updatedBy", fields: [updatedId], references: [id])
-  updatedId  String?
-  updatedAt  DateTime     @updatedAt
-  bill       Bill?        @relation(fields: [billId], references: [id])
-  billId     String?
-  tokens     Token?       @relation(fields: [tokenId], references: [id])
-  tokenId    String?
+  id                String       @id @default(uuid())
+  title             String?
+  note              String?
+  type              PRODUCT_TYPE @default(NON_VEG)
+  price             Float        @default(0)
+  quantity          Int          @default(0)
+  total             Float        @default(0)
+  position          Int          @default(0)
+  placeAt           DateTime     @default(now())
+  placedAt          DateTime?
+  acceptedAt        DateTime?
+  preparedAt        DateTime?
+  status            ITEM_STATUS  @default(PLACED)
+  product           Product      @relation(fields: [productId], references: [id])
+  productId         String
+  kitchenCategory   Category?    @relation(fields: [kitchenCategoryId], references: [id])
+  kitchenCategoryId String?
+  order             Order?       @relation(fields: [orderId], references: [id])
+  orderId           String?
+  createdBy         User?        @relation("createdBy", fields: [createdId], references: [id])
+  createdId         String?
+  createdAt         DateTime     @default(now())
+  updatedBy         User?        @relation("updatedBy", fields: [updatedId], references: [id])
+  updatedId         String?
+  updatedAt         DateTime     @updatedAt
+  bill              Bill?        @relation(fields: [billId], references: [id])
+  billId            String?
+  tokens            Token?       @relation(fields: [tokenId], references: [id])
+  tokenId           String?
 }
 
 enum ITEM_STATUS {
@@ -225,23 +229,28 @@ enum ITEM_STATUS {
 }
 
 model Token {
-  id          String    @id @default(uuid())
-  shortId     String    @unique
-  printed     Boolean   @default(false)
-  printedAt   DateTime?
-  completed   Boolean   @default(false)
-  completedAt DateTime?
-  items       Item[]
-  order       Order?    @relation(fields: [orderId], references: [id])
-  orderId     String?
-  store       Store     @relation(fields: [storeId], references: [id])
-  storeId     String
-  createdBy   User?     @relation("createdBy", fields: [createdId], references: [id])
-  createdId   String?
-  createdAt   DateTime  @default(now())
-  updatedBy   User?     @relation("updatedBy", fields: [updatedId], references: [id])
-  updatedId   String?
-  updatedAt   DateTime  @updatedAt
+  id                String    @id @default(uuid())
+  shortId           String
+  printed           Boolean   @default(false)
+  printedAt         DateTime?
+  placedAt          DateTime  @default(now())
+  completed         Boolean   @default(false)
+  completedAt       DateTime?
+  items             Item[]
+  order             Order?    @relation(fields: [orderId], references: [id])
+  orderId           String?
+  kitchenCategory   Category? @relation(fields: [kitchenCategoryId], references: [id])
+  kitchenCategoryId String?
+  store             Store     @relation(fields: [storeId], references: [id])
+  storeId           String
+  createdBy         User?     @relation("createdBy", fields: [createdId], references: [id])
+  createdId         String?
+  createdAt         DateTime  @default(now())
+  updatedBy         User?     @relation("updatedBy", fields: [updatedId], references: [id])
+  updatedId         String?
+  updatedAt         DateTime  @updatedAt
+
+  @@unique([orderId, shortId])
 }
 
 model Bill {

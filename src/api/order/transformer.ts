@@ -69,17 +69,22 @@ const getOrder = (input: (Order & { items: Item[]; tokens: Token[] }) | null) =>
 
 const getKitchenOrders = (input: (Order & { items: Item[]; tokens: Token[] })[]) => {
   let items: Item[] = [];
-  let tokens: Token[] = [];
+  let tokens: (Token & {
+    items?: Item[];
+  })[] = [];
 
   input.forEach((each) => {
-    items = [...items, ...each.items.map((e) => ({ ...e, orderShortId: each.shortId }))];
-    tokens = [...tokens, ...each.tokens.map((e) => ({ ...e, orderShortId: each.shortId, items: each.items }))];
+    items = [...items, ...each.items.map((e) => ({ ...e, orderShortId: each.shortId, order: each }))];
+    tokens = [
+      ...tokens,
+      ...each.tokens.map((e) => ({ ...e, orderShortId: each.shortId, items: each.items, order: each })),
+    ];
   });
 
   return {
     orders: input.map(getOrder),
     items: itemTransformer.getItemTypeDivided(items),
-    tokens: tokens.map(tokenTransformer.getToken),
+    tokens: tokenTransformer.getTokens(tokens),
   };
 };
 

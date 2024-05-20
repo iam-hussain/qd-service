@@ -194,6 +194,47 @@ async function main() {
     ],
   });
 
+  const kitchenCategories = await Promise.all(
+    [
+      {
+        id: idGenerator.generateShortID(),
+        shortId: idGenerator.generateShortID(),
+        name: 'Italian Kitchen',
+        deck: 'Delicious Italian cuisine with authentic flavors',
+        position: 1,
+        type: 'KITCHEN',
+        storeId,
+      },
+      {
+        id: idGenerator.generateShortID(),
+        shortId: idGenerator.generateShortID(),
+        name: 'Mexican Kitchen',
+        deck: 'Spicy and flavorful Mexican dishes',
+        position: 2,
+        type: 'KITCHEN',
+        storeId,
+      },
+      {
+        id: idGenerator.generateShortID(),
+        shortId: idGenerator.generateShortID(),
+        name: 'Indian Kitchen',
+        deck: 'Rich and diverse Indian cuisine',
+        position: 3,
+        type: 'KITCHEN',
+        storeId,
+      },
+      {
+        id: idGenerator.generateShortID(),
+        shortId: idGenerator.generateShortID(),
+        name: 'Chinese Kitchen',
+        deck: 'Authentic Chinese flavors and dishes',
+        position: 4,
+        type: 'KITCHEN',
+        storeId,
+      },
+    ].map((e) => prisma.category.create({ data: e as any }))
+  );
+
   const categories = [
     {
       name: 'Briyani',
@@ -925,9 +966,19 @@ async function main() {
     },
   ];
 
-  categories.forEach(async (category) => {
+  categories.forEach(async (category, i) => {
     await prisma.category.create({
-      data: category,
+      data: {
+        ...category,
+        products: {
+          createMany: {
+            data: category.products.createMany.data.map((e) => ({
+              ...e,
+              kitchenCategoryId: kitchenCategories[i > 3 ? i - 3 : i].id,
+            })),
+          },
+        },
+      },
     });
   });
 

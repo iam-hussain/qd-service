@@ -9,8 +9,12 @@ import { orderRepository } from './repository';
 import { orderTransformer } from './transformer';
 
 export const orderService = {
-  kitchenOrders: async (slug: string) => {
-    const orders = await orderRepository.findManyBySlugForKitchen(slug);
+  tokens: async (slug: string, enableKitchenCategory: boolean = false) => {
+    const orders = await orderRepository.findManyBySlugForKitchen(slug, enableKitchenCategory);
+    return orderTransformer.getKitchenOrders(orders);
+  },
+  kitchenOrders: async (slug: string, enableKitchenCategory: boolean = false) => {
+    const orders = await orderRepository.findManyBySlugForKitchen(slug, enableKitchenCategory);
     return orderTransformer.getKitchenOrders(orders);
   },
   order: async (id: string, slug: string) => {
@@ -72,6 +76,8 @@ export const orderService = {
   upsert: async (slug: string, data: OrderUpsertSchemaType, userId: string) => {
     const { shortId, items } = data;
 
+    const enableKitchenCategory = Boolean(data.enableKitchenCategory);
+
     const input = orderTransformer.getOrderUpsert(data);
     let repositoryResponse: any = null;
     const itemsInput = items.map((e: any) => itemTransformer.getConnectItemData(e, userId));
@@ -110,13 +116,17 @@ export const orderService = {
     if (!repositoryResponse || !repositoryResponse.id) {
       throw new Error('INVALID_INPUT');
     }
-    const tokenData = tokenTransformer.getConnectTokenData(
-      (repositoryResponse?.items || []).filter((e: any) => e.status === ITEM_STATUS.PLACED),
+
+    const tokenData = tokenTransformer.getCreateTokensByItems(
+      (repositoryResponse?.items || []).filter((e: any) => !e.tokenId && e.status === ITEM_STATUS.PLACED),
       slug,
       repositoryResponse.id,
-      userId
+      userId,
+      (repositoryResponse.tokens || []).length,
+      enableKitchenCategory
     );
-    const token = await tokenRepository.create(tokenData);
+
+    const token = await Promise.all(tokenData.map(tokenRepository.create));
     return orderTransformer.getOrder({
       ...repositoryResponse,
       tokens: [...(repositoryResponse.tokens || []), token],

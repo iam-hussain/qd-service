@@ -24,7 +24,8 @@ export const orderRouter: Router = (() => {
     validateAccess('SIGN_STORE'),
     validateRequest(GetOrdersReqSchema),
     async (req: Request, res: Response) => {
-      const serviceResponse = await orderService.kitchenOrders(req.context.store.slug);
+      const enableKitchenCategory = Boolean(req.query?.category) && req.query?.category === 'true';
+      const serviceResponse = await orderService.kitchenOrders(req.context.store.slug, enableKitchenCategory);
       handleServiceResponse(serviceResponse, res);
     }
   );

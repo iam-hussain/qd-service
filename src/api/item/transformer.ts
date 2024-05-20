@@ -26,6 +26,15 @@ const getConnectItemData = (input: ItemCreateSchemaType, userId: string) => {
     placeAt: dateTime.getDate(),
     placedAt: dateTime.getDate(),
     status: input.status || 'DRAFT',
+    ...(input?.kitchenCategoryId
+      ? {
+          kitchenCategory: {
+            connect: {
+              id: input.kitchenCategoryId,
+            },
+          },
+        }
+      : {}),
   };
 };
 
@@ -44,6 +53,15 @@ const getCreateItemData = (input: ItemCreateSchemaType, orderId: string, userId:
     orderId: orderId,
     createdId: userId,
     status: input.status || 'DRAFT',
+    ...(input?.kitchenCategoryId
+      ? {
+          kitchenCategory: {
+            connect: {
+              id: input.kitchenCategoryId,
+            },
+          },
+        }
+      : {}),
   };
 };
 

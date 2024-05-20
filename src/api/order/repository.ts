@@ -22,7 +22,7 @@ export const orderRepository = {
   findManyByStoreSlug: async (data: any) => {
     return database.order.findMany(data);
   },
-  findManyBySlugForKitchen: async (slug: string) => {
+  findManyBySlugForKitchen: async (slug: string, includeKitchenCategory: boolean = false) => {
     return database.order.findMany({
       where: {
         status: 'IN_PROGRESS',
@@ -31,7 +31,13 @@ export const orderRepository = {
         },
       },
       include: {
-        items: true,
+        items: includeKitchenCategory
+          ? {
+              include: {
+                kitchenCategory: true,
+              },
+            }
+          : true,
         tokens: true,
       },
     });

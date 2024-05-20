@@ -16,7 +16,7 @@ export const categoryRepository = {
       },
       include: {
         _count: {
-          select: { products: true },
+          select: { products: true, kitchenProducts: true },
         },
       },
     });
@@ -30,7 +30,7 @@ export const categoryRepository = {
       },
       include: {
         _count: {
-          select: { products: true },
+          select: { products: true, kitchenProducts: true },
         },
       },
       orderBy: {

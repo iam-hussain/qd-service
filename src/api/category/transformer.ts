@@ -8,13 +8,14 @@ const category = (
   category: Category & {
     _count?: {
       products?: number;
+      kitchenProducts?: number;
     };
   }
 ) => {
   const picked = _.pick(category, ['id', 'shortId', 'name', 'deck', 'position', 'type']);
   return {
     ...picked,
-    productsConnected: category?._count?.products || 0,
+    productsConnected: category?._count?.products || category?._count?.kitchenProducts || 0,
     createdAt: dateTime.getDate(category.createdAt),
     createdDate: dateTime.getDateFormat(category.createdAt),
     createdDateTime: dateTime.getDateTimeFormat(category.createdAt),
