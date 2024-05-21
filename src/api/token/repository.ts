@@ -1,5 +1,6 @@
 import { TokenUpdateSchemaType } from '@iam-hussain/qd-copilot';
 
+import { idSeries } from '@/libs/id-series';
 import database from '@/providers/database';
 
 export const tokenRepository = {
@@ -46,13 +47,6 @@ export const tokenRepository = {
     });
   },
   update: (slug: string, id: string, orderId: string, data: Partial<TokenUpdateSchemaType>, userId: string) => {
-    console.log({
-      id,
-      orderId,
-      store: {
-        slug,
-      },
-    });
     return database.token.update({
       where: {
         id,
@@ -71,14 +65,29 @@ export const tokenRepository = {
       },
     });
   },
-  create: (data: any) => {
-    return database.token.create({
-      data: data,
+  create: async (slug: string, orderId: string, data: any, userId: string) => {
+    const response = await database.token.create({
+      data: {
+        store: {
+          connect: {
+            slug: slug,
+          },
+        },
+        createdBy: {
+          connect: {
+            id: userId,
+          },
+        },
+        order: {
+          connect: {
+            id: orderId,
+          },
+        },
+        shortId: await idSeries.generateTokenId(slug),
+        ...data,
+      },
     });
-  },
-  createMany: (data: any[]) => {
-    return database.token.createMany({
-      data: data,
-    });
+    idSeries.incrementTokenId(slug);
+    return response;
   },
 };

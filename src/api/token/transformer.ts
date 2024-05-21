@@ -2,38 +2,54 @@ import { Category, Item, Token } from '@prisma/client';
 import _ from 'lodash';
 
 import dateTime from '@/libs/date-time';
-import idGenerator from '@/libs/id-generator';
 
 import { itemTransformer } from '../item/transformer';
 
-const getConnectTokenData = (
-  items: Partial<Item>[],
-  slug: string,
-  orderId: string,
-  userId: string,
-  kitchenCategoryId: string = '',
-  tokenIdNumber: number = 0
+const token = (
+  token: Token & {
+    items?: Item[];
+  }
 ) => {
+  const items = (token.items || []).filter((e) => e?.tokenId === token.id);
+  const picked = _.pick(token, [
+    'id',
+    'shortId',
+    'placedAt',
+    'printedAt',
+    'completedAt',
+    'scheduledAt',
+    'order',
+    'orderId',
+    'kitchenCategory',
+  ]);
+
   return {
-    id: idGenerator.generateShortID(),
-    shortId: tokenIdNumber.toString().padStart(3, '0'),
-    store: {
-      connect: {
-        slug: slug,
-      },
-    },
-    createdBy: {
-      connect: {
-        id: userId,
-      },
-    },
+    ...picked,
+    displayId: token.shortId ? token.shortId.split('-')[1] || token.shortId : '',
+    items: itemTransformer.sortItems(items),
+  };
+};
+
+const tokens = (
+  tokens: (Token & {
+    items?: Item[];
+  })[],
+  items: Item[] = []
+) => {
+  return tokens.map((token) => tokenTransformer.token({ ...token, items: [...(token?.items || []), ...items] }));
+};
+
+interface CreateTokenInput {
+  token?: Partial<Token>;
+  items: { id: string }[];
+  kitchenCategoryId?: string; // Optional property with a default value of ''
+}
+
+const createToken = ({ token = {}, items, kitchenCategoryId = '' }: CreateTokenInput) => {
+  return {
+    ...token,
     items: {
-      connect: items.map((e) => ({ id: e.id })),
-    },
-    order: {
-      connect: {
-        id: orderId,
-      },
+      connect: items,
     },
     ...(kitchenCategoryId
       ? {
@@ -47,82 +63,29 @@ const getConnectTokenData = (
   };
 };
 
-const getCreateManyTokenData = (
-  items: Partial<Item>[],
-  storeId: string,
-  orderId: string,
-  userId: string,
-  kitchenCategoryId: string = ''
-) => {
-  return {
-    id: idGenerator.generateShortID(),
-    shortId: idGenerator.generateShortID(),
-    storeId,
-    createdId: userId,
-    items: {
-      connect: items.map((e) => ({ id: e.id })),
-    },
-    orderId,
-    ...(kitchenCategoryId
-      ? {
-          kitchenCategoryId,
-        }
-      : {}),
-  };
-};
+interface CreateTokenSplitsInput {
+  token?: Partial<Token>;
+  items: (Item & {
+    product: {
+      kitchenCategoryId?: string;
+    };
+  })[];
+  enableKitchenCategory?: boolean;
+}
 
-const getToken = (
-  token: Token & {
-    items?: Item[];
-  },
-  addon: any = {}
-) => {
-  const picked = _.pick(token, [
-    'id',
-    'shortId',
-    'printed',
-    'printedAt',
-    'completed',
-    'completedAt',
-    'orderId',
-    'order',
-    'createdAt',
-    'updatedAt',
-    'orderShortId',
-    'kitchenCategory',
-  ]);
-
-  return {
-    ...picked,
-    items: itemTransformer.getItemTypeDivided((token.items || []).filter((e) => e.tokenId === picked.id)),
-    ...addon,
-  };
-};
-
-const getCreateTokensByItems = (
-  items: Item[],
-  slug: string,
-  orderId: string,
-  userId: string,
-  lastTokenId: number = 0,
-  enableKitchenCategory: boolean = false
-) => {
+const createTokensSplits = ({ token = {}, items, enableKitchenCategory = false }: CreateTokenSplitsInput) => {
+  const validItems = items.filter((item) => !item?.tokenId);
+  if (validItems.length === 0) {
+    return [];
+  }
   if (!enableKitchenCategory) {
-    return [
-      tokenTransformer.getConnectTokenData(
-        items.map((e) => ({ id: e.id })),
-        slug,
-        orderId,
-        userId,
-        '',
-        lastTokenId + 1
-      ),
-    ];
+    const itemsIds = validItems.map((e) => ({ id: e.id }));
+    return [tokenTransformer.createToken({ token, items: itemsIds })];
   }
   const tokens = new Map<string, string[]>();
 
-  items.forEach((e) => {
-    const category = e.kitchenCategoryId || '';
+  validItems.forEach((e) => {
+    const category = e?.product?.kitchenCategoryId || '';
     const token = tokens.get(category);
     const item = e.id;
 
@@ -133,47 +96,35 @@ const getCreateTokensByItems = (
     }
   });
 
-  return Array.from(tokens, ([name, value], i) =>
-    tokenTransformer.getConnectTokenData(
-      value.map((e) => ({ id: e })),
-      slug,
-      orderId,
-      userId,
-      name,
-      lastTokenId + i + 1
+  return Array.from(tokens, ([name, value]) => {
+    const itemsIds = value.map((e) => ({ id: e }));
+    return tokenTransformer.createToken({ token, items: itemsIds, kitchenCategoryId: name });
+  });
+};
+
+const sortTokens = (
+  input: (Token & {
+    items?: Item[];
+    kitchenCategory?: Partial<Category> | null;
+  })[]
+) => {
+  const sortedTokens = tokens(
+    _.sortBy(
+      input.filter((e) => e.items?.length),
+      'shortId'
     )
   );
-};
-
-const getTokens = (
-  tokens: (Token & {
-    items?: Item[];
-  })[]
-) => {
-  return tokens.map(tokenTransformer.getToken);
-};
-
-const getTokensByTypes = (
-  tokens: (Token & {
-    items?: Item[];
-    kitchenCategory?: Category | null;
-  })[]
-) => {
-  const transformed = tokens.filter((e) => e?.items && e.items?.length).map(tokenTransformer.getToken);
-
   return {
-    all: transformed,
-    scheduled: transformed.filter((e) => dateTime.isAfterDate(e.placeAt)),
-    placed: transformed.filter((e) => !e.completedAt && dateTime.isBeforeDate(e.placedAt)),
-    completed: transformed.filter((e) => Boolean(e.completedAt)),
+    scheduled: sortedTokens.filter((e) => e?.scheduledAt && dateTime.isAfterDate(e.placedAt)),
+    placed: sortedTokens.filter((e) => e.placedAt && dateTime.isBeforeDate(e.placedAt)),
+    completed: sortedTokens.filter((e) => Boolean(e.completedAt)),
   };
 };
 
 export const tokenTransformer = {
-  getTokens,
-  getToken,
-  getCreateTokensByItems,
-  getConnectTokenData,
-  getCreateManyTokenData,
-  getTokensByTypes,
+  tokens,
+  token,
+  createTokensSplits,
+  createToken,
+  sortTokens,
 };

@@ -20,12 +20,11 @@ export const orderRouter: Router = (() => {
   );
 
   router.get(
-    '/orders/kot',
+    '/orders/today',
     validateAccess('SIGN_STORE'),
     validateRequest(GetOrdersReqSchema),
     async (req: Request, res: Response) => {
-      const enableKitchenCategory = Boolean(req.query?.category) && req.query?.category === 'true';
-      const serviceResponse = await orderService.kitchenOrders(req.context.store.slug, enableKitchenCategory);
+      const serviceResponse = await orderService.orders(req.context.store.slug, req.params as any);
       handleServiceResponse(serviceResponse, res);
     }
   );

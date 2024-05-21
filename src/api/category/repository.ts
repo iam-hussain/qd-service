@@ -42,7 +42,6 @@ export const categoryRepository = {
     return database.category.create({
       data: {
         ...data,
-        id: idGenerator.generateShortID(),
         shortId: idGenerator.generateShortID(),
         store: {
           connect: {

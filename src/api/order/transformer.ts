@@ -60,36 +60,15 @@ const getOrder = (input: (Order & { items: Item[]; tokens: Token[] }) | null) =>
   if (!input) {
     return {};
   }
+  const items = input?.items || [];
   return {
     ...input,
-    ...itemTransformer.getItemTypeDivided(input?.items || []),
-    tokens: (input.tokens || []).map(tokenTransformer.getToken),
-  };
-};
-
-const getKitchenOrders = (input: (Order & { items: Item[]; tokens: Token[] })[]) => {
-  let items: Item[] = [];
-  let tokens: (Token & {
-    items?: Item[];
-  })[] = [];
-
-  input.forEach((each) => {
-    items = [...items, ...each.items.map((e) => ({ ...e, orderShortId: each.shortId, order: each }))];
-    tokens = [
-      ...tokens,
-      ...each.tokens.map((e) => ({ ...e, orderShortId: each.shortId, items: each.items, order: each })),
-    ];
-  });
-
-  return {
-    orders: input.map(getOrder),
-    items: itemTransformer.getItemTypeDivided(items),
-    tokens: tokenTransformer.getTokens(tokens),
+    items: itemTransformer.sortItems(items),
+    tokens: tokenTransformer.tokens(input?.tokens || [], items),
   };
 };
 
 export const orderTransformer = {
   getOrderUpsert,
   getOrder,
-  getKitchenOrders,
 };

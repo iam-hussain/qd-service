@@ -8,8 +8,7 @@ export const itemService = {
     if (!data?.orderId) {
       return {};
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const input = itemTransformer.getUpdateItemData(data, userId);
+    const input = itemTransformer.updateItem(data, userId);
     const repositoryResponse = await itemRepository.update(slug, id, data.orderId, input);
     return repositoryResponse;
   },

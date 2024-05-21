@@ -7,7 +7,6 @@ const hashIt = (input: string, salt: string) => {
 export default {
   verify: (password: string, hash: string, salt: string) => {
     const passwordHash = hashIt(password, salt);
-    console.log({ passwordHash, salt, hash });
     return hash === passwordHash;
   },
 

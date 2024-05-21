@@ -38,6 +38,14 @@ export const isAfterDate = (date: string | Date = new Date()) => {
   return input.isSameOrAfter(current);
 };
 
+export const diffInMinutes = (from: string | null | Date = new Date(), to: string | null | Date = new Date()) => {
+  const startDate = moment(from);
+  const endDate = moment(to);
+
+  // Calculate the difference in minutes
+  return endDate.diff(startDate, 'minutes');
+};
+
 export default {
   getDate,
   getDateFormat,
@@ -47,4 +55,5 @@ export default {
   getTodayEnd,
   isBeforeDate,
   isAfterDate,
+  diffInMinutes,
 };

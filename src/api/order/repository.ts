@@ -1,6 +1,5 @@
 import { OrderUpsertSchemaType } from '@iam-hussain/qd-copilot';
 
-import idGenerator from '@/libs/id-generator';
 import { idSeries } from '@/libs/id-series';
 import database from '@/providers/database';
 
@@ -19,33 +18,14 @@ export const orderRepository = {
       },
     });
   },
+
   findManyByStoreSlug: async (data: any) => {
     return database.order.findMany(data);
   },
-  findManyBySlugForKitchen: async (slug: string, includeKitchenCategory: boolean = false) => {
-    return database.order.findMany({
-      where: {
-        status: 'IN_PROGRESS',
-        store: {
-          slug,
-        },
-      },
-      include: {
-        items: includeKitchenCategory
-          ? {
-              include: {
-                kitchenCategory: true,
-              },
-            }
-          : true,
-        tokens: true,
-      },
-    });
-  },
+
   create: async (slug: string, data: any, userId: string) => {
     const response = await database.order.create({
       data: {
-        id: idGenerator.generateShortID(),
         shortId: await idSeries.generateOrderId(slug),
         createdBy: {
           connect: {
@@ -60,13 +40,22 @@ export const orderRepository = {
         ...data,
       },
       include: {
-        items: true,
+        items: {
+          include: {
+            product: {
+              select: {
+                kitchenCategoryId: true,
+              },
+            },
+          },
+        },
         tokens: true,
       },
     });
     idSeries.incrementOrderId(slug);
     return response;
   },
+
   update: (slug: string, shortId: string, data: Partial<OrderUpsertSchemaType>, userId: string) => {
     return database.order.update({
       where: {
@@ -84,11 +73,20 @@ export const orderRepository = {
         },
       },
       include: {
-        items: true,
+        items: {
+          include: {
+            product: {
+              select: {
+                kitchenCategoryId: true,
+              },
+            },
+          },
+        },
         tokens: true,
       },
     });
   },
+
   deleteById: async (id: string, slug: string) => {
     return database.order.delete({
       where: {

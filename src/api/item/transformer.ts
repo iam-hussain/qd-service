@@ -1,10 +1,16 @@
 import { getGroupedItems, ItemCreateSchemaType, ItemUpdateSchemaType } from '@iam-hussain/qd-copilot';
-import { Item, ITEM_STATUS, PRODUCT_TYPE } from '@prisma/client';
+import { Item, PRODUCT_TYPE } from '@prisma/client';
 import _ from 'lodash';
 
 import dateTime from '@/libs/date-time';
 
-const getConnectItemData = (input: ItemCreateSchemaType, userId: string) => {
+const createConnectItem = (
+  input: ItemCreateSchemaType & {
+    placedAt?: string;
+    scheduledAt?: string;
+  },
+  userId: string
+) => {
   return {
     product: {
       connect: {
@@ -23,22 +29,19 @@ const getConnectItemData = (input: ItemCreateSchemaType, userId: string) => {
     position: Number(input.position) || 0,
     price: Number(input.price) || 0,
     total: Number(input.price) * (Number(input.quantity) || 1),
-    placeAt: dateTime.getDate(),
-    placedAt: dateTime.getDate(),
-    status: input.status || 'DRAFT',
-    ...(input?.kitchenCategoryId
-      ? {
-          kitchenCategory: {
-            connect: {
-              id: input.kitchenCategoryId,
-            },
-          },
-        }
-      : {}),
+    ...(input.placedAt ? { placedAt: input.placedAt } : {}),
+    ...(input.scheduledAt ? { scheduledAt: input.scheduledAt } : {}),
   };
 };
 
-const getCreateItemData = (input: ItemCreateSchemaType, orderId: string, userId: string) => {
+const createItem = (
+  input: ItemCreateSchemaType & {
+    placedAt?: string;
+    scheduledAt?: string;
+  },
+  orderId: string,
+  userId: string
+) => {
   return {
     productId: input.productId,
     title: input.title || '',
@@ -48,44 +51,62 @@ const getCreateItemData = (input: ItemCreateSchemaType, orderId: string, userId:
     position: Number(input.position) || 0,
     price: Number(input.price) || 0,
     total: Number(input.price) * (Number(input.quantity) || 1),
-    placeAt: dateTime.getDate(),
-    placedAt: dateTime.getDate(),
+    placedAt: input?.placedAt || dateTime.getDate(),
+    ...(input.scheduledAt ? { scheduledAt: input.scheduledAt } : {}),
     orderId: orderId,
     createdId: userId,
-    status: input.status || 'DRAFT',
-    ...(input?.kitchenCategoryId
-      ? {
-          kitchenCategory: {
-            connect: {
-              id: input.kitchenCategoryId,
-            },
-          },
-        }
-      : {}),
   };
 };
 
-const getItemTypeDivided = (input: Item[]) => {
-  const items = _.sortBy(input, 'createdAt');
-  const drafted = items.filter((e) => e.status === 'DRAFT');
-  const nonDraft = items.filter((e) => e.status !== 'DRAFT');
+const item = (input: Item) => {
+  const item = _.pick(input, [
+    'id',
+    'title',
+    'type',
+    'price',
+    'quantity',
+    'total',
+    'position',
+    'placedAt',
+    'acceptedAt',
+    'completedAt',
+    'scheduledAt',
+    'rejectedAt',
+    'rejected',
+  ]);
   return {
-    all: items,
-    items: nonDraft,
-    drafted,
-    summary: getGroupedItems(nonDraft),
-    scheduled: nonDraft.filter((e) => e.status === ITEM_STATUS.SCHEDULED && dateTime.isAfterDate(e.placeAt)),
-    placed: nonDraft.filter((e) => e.status === ITEM_STATUS.PLACED && e.placedAt && dateTime.isBeforeDate(e.placedAt)),
-    accepted: nonDraft.filter(
-      (e) => e.status === ITEM_STATUS.ACCEPTED && e.acceptedAt && dateTime.isBeforeDate(e.acceptedAt)
-    ),
-    prepared: nonDraft.filter(
-      (e) => e.status === ITEM_STATUS.PREPARED && e.preparedAt && dateTime.isBeforeDate(e.preparedAt)
-    ),
+    ...item,
+    scheduledInMin: dateTime.diffInMinutes(item.scheduledAt, item.placedAt) || 0,
   };
 };
 
-const getUpdateItemData = (data: ItemUpdateSchemaType, userId: string) => {
+const sortItems = (input: Item[]) => {
+  // Sort items by 'position' property
+  const sortedItems = _.sortBy(input.map(item), 'position');
+
+  // Filter items into drafted and non-drafted categories
+  const draftedItems = sortedItems.filter((item) => !item.placedAt);
+  const rejectedItems = sortedItems.filter((item) => item.rejectedAt && item.rejected);
+  const validItems = sortedItems.filter((item) => Boolean(item.placedAt) && !item.rejected && !item.rejectedAt);
+
+  return {
+    // all: sortedItems,
+    drafted: draftedItems,
+    rejected: rejectedItems,
+    valid: validItems,
+    summary: getGroupedItems(validItems),
+    scheduled: validItems.filter(
+      (item) => Boolean(item.scheduledAt) && item.placedAt && dateTime.isAfterDate(item.placedAt)
+    ),
+    placed: validItems.filter(
+      (item) => item.placedAt && !item.acceptedAt && !item.completedAt && dateTime.isBeforeDate(item.placedAt)
+    ),
+    accepted: validItems.filter((item) => item.acceptedAt && dateTime.isBeforeDate(item.acceptedAt)),
+    completed: validItems.filter((item) => item.completedAt && dateTime.isBeforeDate(item.completedAt)),
+  };
+};
+
+const updateItem = (data: ItemUpdateSchemaType, userId: string) => {
   const output = _.pick(data, [
     'id',
     'title',
@@ -99,7 +120,6 @@ const getUpdateItemData = (data: ItemUpdateSchemaType, userId: string) => {
     'placedAt',
     'acceptedAt',
     'preparedAt',
-    'status',
     'billId',
   ]);
 
@@ -114,8 +134,9 @@ const getUpdateItemData = (data: ItemUpdateSchemaType, userId: string) => {
 };
 
 export const itemTransformer = {
-  getConnectItemData,
-  getCreateItemData,
-  getItemTypeDivided,
-  getUpdateItemData,
+  item,
+  createConnectItem,
+  createItem,
+  sortItems,
+  updateItem,
 };

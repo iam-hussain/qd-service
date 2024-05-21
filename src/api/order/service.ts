@@ -1,22 +1,14 @@
 import { GetOrdersSchemaType, OrderUpsertSchemaType } from '@iam-hussain/qd-copilot';
-import { ITEM_STATUS } from '@prisma/client';
+
+import dateTime from '@/libs/date-time';
 
 import { itemRepository } from '../item/repository';
 import { itemTransformer } from '../item/transformer';
-import { tokenRepository } from '../token/repository';
-import { tokenTransformer } from '../token/transformer';
+import { tokenService } from '../token/service';
 import { orderRepository } from './repository';
 import { orderTransformer } from './transformer';
 
 export const orderService = {
-  tokens: async (slug: string, enableKitchenCategory: boolean = false) => {
-    const orders = await orderRepository.findManyBySlugForKitchen(slug, enableKitchenCategory);
-    return orderTransformer.getKitchenOrders(orders);
-  },
-  kitchenOrders: async (slug: string, enableKitchenCategory: boolean = false) => {
-    const orders = await orderRepository.findManyBySlugForKitchen(slug, enableKitchenCategory);
-    return orderTransformer.getKitchenOrders(orders);
-  },
   order: async (id: string, slug: string) => {
     const repositoryResponse = await orderRepository.findByShortId(id, slug);
     return orderTransformer.getOrder(repositoryResponse);
@@ -75,12 +67,25 @@ export const orderService = {
   },
   upsert: async (slug: string, data: OrderUpsertSchemaType, userId: string) => {
     const { shortId, items } = data;
+    let repositoryResponse: any = null;
 
     const enableKitchenCategory = Boolean(data.enableKitchenCategory);
-
+    const scheduledData = data.scheduledAt
+      ? {
+          placedAt: dateTime.getDate(data.scheduledAt),
+          scheduledAt: dateTime.getDate(),
+        }
+      : {};
     const input = orderTransformer.getOrderUpsert(data);
-    let repositoryResponse: any = null;
-    const itemsInput = items.map((e: any) => itemTransformer.getConnectItemData(e, userId));
+    const itemsInput = items.map((e: any) =>
+      itemTransformer.createConnectItem(
+        {
+          ...e,
+          ...scheduledData,
+        },
+        userId
+      )
+    );
 
     if (itemsInput.length) {
       input.items = {
@@ -95,7 +100,7 @@ export const orderService = {
       if (!fetchedOrder || !fetchedOrder.id) {
         throw new Error('INVALID_INPUT');
       }
-      const existingDraftItems = fetchedOrder.items.filter((e) => e?.status === 'DRAFT');
+      const existingDraftItems = fetchedOrder.items.filter((item) => !item.placedAt);
       const draftedIds = existingDraftItems.map((e) => e.id);
 
       if (fetchedOrder.items.length) {
@@ -117,19 +122,18 @@ export const orderService = {
       throw new Error('INVALID_INPUT');
     }
 
-    const tokenData = tokenTransformer.getCreateTokensByItems(
-      (repositoryResponse?.items || []).filter((e: any) => !e.tokenId && e.status === ITEM_STATUS.PLACED),
+    const tokens = await tokenService.createManyOneByOne(
       slug,
       repositoryResponse.id,
+      repositoryResponse?.items,
       userId,
-      (repositoryResponse.tokens || []).length,
-      enableKitchenCategory
+      enableKitchenCategory,
+      scheduledData
     );
 
-    const token = await Promise.all(tokenData.map(tokenRepository.create));
     return orderTransformer.getOrder({
       ...repositoryResponse,
-      tokens: [...(repositoryResponse.tokens || []), token],
+      tokens: [...(repositoryResponse.tokens || []), tokens],
     });
   },
   delete: async (slug: string, id: string) => {
