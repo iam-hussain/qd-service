@@ -116,7 +116,7 @@ const sortTokens = (
   );
   return {
     scheduled: sortedTokens.filter((e) => e?.scheduledAt && dateTime.isAfterDate(e.placedAt)),
-    placed: sortedTokens.filter((e) => e.placedAt && dateTime.isBeforeDate(e.placedAt)),
+    placed: sortedTokens.filter((e) => e.placedAt && !e.completedAt && dateTime.isBeforeDate(e.placedAt)),
     completed: sortedTokens.filter((e) => Boolean(e.completedAt)),
   };
 };

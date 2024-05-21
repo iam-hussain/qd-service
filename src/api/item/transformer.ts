@@ -108,7 +108,6 @@ const sortItems = (input: Item[]) => {
 
 const updateItem = (data: ItemUpdateSchemaType, userId: string) => {
   const output = _.pick(data, [
-    'id',
     'title',
     'note',
     'type',
@@ -116,11 +115,11 @@ const updateItem = (data: ItemUpdateSchemaType, userId: string) => {
     'quantity',
     'total',
     'position',
-    'placeAt',
     'placedAt',
     'acceptedAt',
-    'preparedAt',
-    'billId',
+    'completedAt',
+    'rejectedAt',
+    'rejected',
   ]);
 
   return {
