@@ -65,8 +65,12 @@ export const orderService = {
     const repositoryResponse = (await orderRepository.findManyByStoreSlug(props)) as any[];
     return repositoryResponse.map(orderTransformer.getOrder);
   },
+  openOrders: async (slug: string) => {
+    const repositoryResponse = (await orderRepository.findManyOpenByStoreSlug(slug)) as any[];
+    return repositoryResponse.map(orderTransformer.getOrder);
+  },
   upsert: async (slug: string, data: OrderUpsertSchemaType, userId: string) => {
-    const { shortId, items } = data;
+    const { shortId, items, note, ...orderInput } = data;
     let repositoryResponse: any = null;
 
     const enableKitchenCategory = Boolean(data.enableKitchenCategory);
@@ -76,7 +80,7 @@ export const orderService = {
           scheduledAt: dateTime.getDate(),
         }
       : {};
-    const input = orderTransformer.getOrderUpsert(data);
+    const input = orderTransformer.getOrderUpsert(orderInput);
     const itemsInput = items.map((e: any) =>
       itemTransformer.createConnectItem(
         {
@@ -128,7 +132,7 @@ export const orderService = {
       repositoryResponse?.items,
       userId,
       enableKitchenCategory,
-      scheduledData
+      { ...scheduledData, note: note ? note : null }
     );
 
     return orderTransformer.getOrder({

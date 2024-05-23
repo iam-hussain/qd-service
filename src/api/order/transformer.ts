@@ -7,7 +7,7 @@ import { itemTransformer } from '../item/transformer';
 import { storeTransformer } from '../store/transformer';
 import { tokenTransformer } from '../token/transformer';
 
-const getOrderUpsert = (data: OrderUpsertSchemaType, returnDefault: boolean = false) => {
+const getOrderUpsert = (data: Partial<OrderUpsertSchemaType>, returnDefault: boolean = false) => {
   const order: any = {};
 
   if (data?.type) {

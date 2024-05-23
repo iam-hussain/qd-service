@@ -43,7 +43,7 @@ const products = (
     category?: Partial<Category> | null;
   })[]
 ) => {
-  return products.map(productTable);
+  return _.sortBy(products.map(productTable), 'name');
 };
 
 export const productTransformer = {

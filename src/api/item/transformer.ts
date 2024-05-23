@@ -58,7 +58,7 @@ const createItem = (
   };
 };
 
-const item = (input: Item) => {
+const item = (input: Item, variant?: string) => {
   const item = _.pick(input, [
     'id',
     'title',
@@ -73,44 +73,46 @@ const item = (input: Item) => {
     'scheduledAt',
     'rejectedAt',
     'rejected',
+    'createdAt',
+    'productId',
   ]);
   return {
     ...item,
     scheduledInMin: dateTime.diffInMinutes(item.scheduledAt, item.placedAt) || 0,
+    ...(variant ? { variant } : {}),
   };
 };
 
-const sortItems = (input: Item[]) => {
-  // Sort items by 'position' property
-  const sortedItems = _.sortBy(input.map(item), 'position');
+const items = (input: Item[], variant?: string) => {
+  return input.map((e) => item(e, variant));
+};
 
-  // Filter items into drafted and non-drafted categories
-  const draftedItems = sortedItems.filter((item) => !item.placedAt).map((e) => ({ ...e, variant: 'drafted' }));
-  const rejectedItems = sortedItems
-    .filter((item) => item.rejectedAt && item.rejected)
-    .map((e) => ({ ...e, variant: 'rejected' }));
-  const validItems = sortedItems
-    .filter((item) => Boolean(item.placedAt) && !item.rejected && !item.rejectedAt)
-    .map((e) => ({ ...e, variant: 'valid' }));
+const sortItems = (input: Item[]) => {
+  const sortedItems = _.sortBy(input, ['placedAt', 'position']);
+  const draftedItems = sortedItems.filter((item) => !item.placedAt);
+  const rejectedItems = sortedItems.filter((item) => item.rejectedAt && item.rejected);
+  const validItems = sortedItems.filter((item) => Boolean(item.placedAt) && !item.rejected && !item.rejectedAt);
+  const scheduledItems = validItems.filter(
+    (item) => Boolean(item.scheduledAt) && item.placedAt && dateTime.isAfterDate(item.placedAt)
+  );
+  const placedItems = validItems.filter(
+    (item) => item.placedAt && !item.acceptedAt && !item.completedAt && dateTime.isBeforeDate(item.placedAt)
+  );
+  const acceptedItems = validItems.filter(
+    (item) => item.acceptedAt && !item.completedAt && dateTime.isBeforeDate(item.acceptedAt)
+  );
+  const completedItems = validItems.filter((item) => item.completedAt && dateTime.isBeforeDate(item.completedAt));
 
   return {
-    // all: sortedItems,
-    drafted: draftedItems,
-    rejected: rejectedItems,
-    valid: validItems,
+    // valid: items(draftedItems, 'valid'),
+    drafted: items(draftedItems, 'drafted'),
+    rejected: items(rejectedItems, 'rejected'),
+    scheduled: items(scheduledItems, 'scheduled'),
+    placed: items(placedItems, 'placed'),
+    accepted: items(acceptedItems, 'accepted'),
+    completed: items(completedItems, 'completed'),
     summary: getGroupedItems(validItems),
-    scheduled: validItems
-      .filter((item) => Boolean(item.scheduledAt) && item.placedAt && dateTime.isAfterDate(item.placedAt))
-      .map((e) => ({ ...e, variant: 'scheduled' })),
-    placed: validItems
-      .filter((item) => item.placedAt && !item.acceptedAt && !item.completedAt && dateTime.isBeforeDate(item.placedAt))
-      .map((e) => ({ ...e, variant: 'placed' })),
-    accepted: validItems
-      .filter((item) => item.acceptedAt && !item.completedAt && dateTime.isBeforeDate(item.acceptedAt))
-      .map((e) => ({ ...e, variant: 'accepted' })),
-    completed: validItems
-      .filter((item) => item.completedAt && dateTime.isBeforeDate(item.completedAt))
-      .map((e) => ({ ...e, variant: 'completed' })),
+    validCount: validItems.length,
   };
 };
 
@@ -142,6 +144,7 @@ const updateItem = (data: ItemUpdateSchemaType, userId: string) => {
 
 export const itemTransformer = {
   item,
+  items,
   createConnectItem,
   createItem,
   sortItems,

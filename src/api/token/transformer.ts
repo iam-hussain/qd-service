@@ -13,6 +13,7 @@ const token = (
   const items = (token.items || []).filter((e) => e?.tokenId === token.id);
   const picked = _.pick(token, [
     'id',
+    'note',
     'shortId',
     'placedAt',
     'printedAt',
@@ -74,7 +75,7 @@ interface CreateTokenSplitsInput {
 }
 
 const createTokensSplits = ({ token = {}, items, enableKitchenCategory = false }: CreateTokenSplitsInput) => {
-  const validItems = items.filter((item) => !item?.tokenId);
+  const validItems = items.filter((item) => !item?.tokenId && item.placedAt);
   if (validItems.length === 0) {
     return [];
   }
@@ -114,10 +115,15 @@ const sortTokens = (
       'shortId'
     )
   );
+
+  const scheduled = sortedTokens.filter((e) => e?.scheduledAt && dateTime.isAfterDate(e.placedAt));
+  const placed = sortedTokens.filter((e) => e.placedAt && !e.completedAt && dateTime.isBeforeDate(e.placedAt));
+  const completed = sortedTokens.filter((e) => Boolean(e.completedAt));
+
   return {
-    scheduled: sortedTokens.filter((e) => e?.scheduledAt && dateTime.isAfterDate(e.placedAt)),
-    placed: sortedTokens.filter((e) => e.placedAt && !e.completedAt && dateTime.isBeforeDate(e.placedAt)),
-    completed: sortedTokens.filter((e) => Boolean(e.completedAt)),
+    scheduled: _.sortBy(scheduled, 'placedAt'),
+    placed: _.sortBy(placed, 'placedAt'),
+    completed: _.sortBy(completed, 'completedAt').reverse(),
   };
 };
 

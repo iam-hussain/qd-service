@@ -40,6 +40,7 @@ export const tokenService = {
       const createdUser = await tokenRepository.create(slug, orderId, data, userId);
       created.push(createdUser);
     }
+    console.log({ created, tokenCreateData });
     return created;
   },
 };

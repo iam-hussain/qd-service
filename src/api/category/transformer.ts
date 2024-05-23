@@ -33,7 +33,7 @@ const categories = (
   })[]
 ) => {
   const data = categories.map(category);
-  return data.sort(sorts.zeroLastSortPosition);
+  return _.sortBy(data, 'name').sort(sorts.zeroLastSortPosition);
 };
 
 export const categoryTransformer = {

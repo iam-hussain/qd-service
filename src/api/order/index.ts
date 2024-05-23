@@ -19,15 +19,10 @@ export const orderRouter: Router = (() => {
     }
   );
 
-  router.get(
-    '/orders/today',
-    validateAccess('SIGN_STORE'),
-    validateRequest(GetOrdersReqSchema),
-    async (req: Request, res: Response) => {
-      const serviceResponse = await orderService.orders(req.context.store.slug, req.params as any);
-      handleServiceResponse(serviceResponse, res);
-    }
-  );
+  router.get('/orders/open', validateAccess('SIGN_STORE'), async (req: Request, res: Response) => {
+    const serviceResponse = await orderService.openOrders(req.context.store.slug);
+    handleServiceResponse(serviceResponse, res);
+  });
 
   router.get(
     '/order/:id',

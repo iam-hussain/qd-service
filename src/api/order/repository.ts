@@ -1,5 +1,6 @@
 import { OrderUpsertSchemaType } from '@iam-hussain/qd-copilot';
 
+import dateTime from '@/libs/date-time';
 import { idSeries } from '@/libs/id-series';
 import database from '@/providers/database';
 
@@ -21,6 +22,39 @@ export const orderRepository = {
 
   findManyByStoreSlug: async (data: any) => {
     return database.order.findMany(data);
+  },
+
+  findManyOpenByStoreSlug: async (slug: string) => {
+    return database.order.findMany({
+      where: {
+        store: {
+          slug,
+        },
+        OR: [
+          {
+            createdAt: {
+              gte: dateTime.getTodayStart(),
+              lte: dateTime.getTodayEnd(),
+            },
+            status: { in: ['DELIVERY_PENDING', 'DELIVERED', 'DRAFT', 'IN_PROGRESS'] },
+          },
+        ],
+      },
+      orderBy: {
+        shortId: 'desc',
+      },
+      include: {
+        items: {
+          select: {
+            tokens: {
+              select: {
+                shortId: true,
+              },
+            },
+          },
+        },
+      },
+    });
   },
 
   create: async (slug: string, data: any, userId: string) => {
