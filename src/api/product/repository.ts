@@ -52,12 +52,6 @@ export const productRepository = {
             name: true,
           },
         },
-        kitchenCategory: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
       },
     });
   },
