@@ -1,6 +1,5 @@
 import { OrderUpsertSchemaType } from '@iam-hussain/qd-copilot';
 
-import dateTime from '@/libs/date-time';
 import { idSeries } from '@/libs/id-series';
 import database from '@/providers/database';
 
@@ -25,6 +24,8 @@ export const orderRepository = {
   },
 
   findManyOpenByStoreSlug: async (slug: string) => {
+    const fiveHoursAgo = new Date(Date.now() - 5 * 60 * 60 * 1000); // Calculate 5 hours ago
+
     return database.order.findMany({
       where: {
         store: {
@@ -33,9 +34,10 @@ export const orderRepository = {
         OR: [
           {
             createdAt: {
-              gte: dateTime.getTodayStart(),
-              lte: dateTime.getTodayEnd(),
+              gt: fiveHoursAgo,
             },
+          },
+          {
             status: { in: ['DELIVERY_PENDING', 'DELIVERED', 'DRAFT', 'IN_PROGRESS'] },
           },
         ],
@@ -44,15 +46,7 @@ export const orderRepository = {
         shortId: 'desc',
       },
       include: {
-        items: {
-          select: {
-            tokens: {
-              select: {
-                shortId: true,
-              },
-            },
-          },
-        },
+        items: true,
       },
     });
   },
