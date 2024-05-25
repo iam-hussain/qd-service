@@ -50,6 +50,19 @@ export const orderRepository = {
       },
     });
   },
+  findManyRecentStoreSlug: async (slug: string) => {
+    return database.order.findMany({
+      where: {
+        store: {
+          slug,
+        },
+      },
+      orderBy: {
+        updatedAt: 'desc',
+      },
+      take: 5,
+    });
+  },
 
   create: async (slug: string, data: any, userId: string) => {
     const response = await database.order.create({

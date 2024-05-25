@@ -65,6 +65,10 @@ export const orderService = {
     const repositoryResponse = (await orderRepository.findManyByStoreSlug(props)) as any[];
     return repositoryResponse.map(orderTransformer.getOrder);
   },
+  recentOrders: async (slug: string) => {
+    const repositoryResponse = (await orderRepository.findManyRecentStoreSlug(slug)) as any[];
+    return repositoryResponse.map(orderTransformer.getOrder);
+  },
   openOrders: async (slug: string) => {
     const repositoryResponse = (await orderRepository.findManyOpenByStoreSlug(slug)) as any[];
     return repositoryResponse.map(orderTransformer.getOrder);

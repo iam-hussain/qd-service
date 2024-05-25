@@ -24,6 +24,11 @@ export const orderRouter: Router = (() => {
     handleServiceResponse(serviceResponse, res);
   });
 
+  router.get('/orders/recent', validateAccess('SIGN_STORE'), async (req: Request, res: Response) => {
+    const serviceResponse = await orderService.recentOrders(req.context.store.slug);
+    handleServiceResponse(serviceResponse, res);
+  });
+
   router.get(
     '/order/:id',
     validateAccess('SIGN_STORE'),
