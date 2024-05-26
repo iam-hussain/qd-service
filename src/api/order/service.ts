@@ -14,20 +14,21 @@ export const orderService = {
     return orderTransformer.getOrder(repositoryResponse);
   },
   orders: async (slug: string, data: GetOrdersSchemaType) => {
-    const { take, date, cursor, skip, type, types, status, statuses } = data;
+    const { take, date, cursor, type, types, status, statuses } = data;
+    const skip = Number(data.skip) || 0;
     const props: any = {
       where: {
         store: {
           slug,
         },
       },
-      take,
+      take: Number(take) || 10,
       orderBy: {
         shortId: 'desc',
       },
-      include: {
-        items: true,
-      },
+      // include: {
+      //   items: true,
+      // },
     };
     if (date) {
       props.where.shortId = {
@@ -44,7 +45,7 @@ export const orderService = {
       };
       props.skip = 1;
     } else {
-      props.skip = skip;
+      props.skip = skip >= 0 ? skip : 0;
     }
 
     if (type) {
@@ -63,7 +64,7 @@ export const orderService = {
       props.where.status = { in: statuses };
     }
     const repositoryResponse = (await orderRepository.findManyByStoreSlug(props)) as any[];
-    return repositoryResponse.map(orderTransformer.getOrder);
+    return repositoryResponse.map(orderTransformer.getTableOrder);
   },
   recentOrders: async (slug: string) => {
     const repositoryResponse = (await orderRepository.findManyRecentStoreSlug(slug)) as any[];

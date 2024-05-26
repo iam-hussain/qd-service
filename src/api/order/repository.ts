@@ -20,7 +20,43 @@ export const orderRepository = {
   },
 
   findManyByStoreSlug: async (data: any) => {
-    return database.order.findMany(data);
+    return database.order.findMany({
+      ...data,
+      select: {
+        id: true,
+        shortId: true,
+        type: true,
+        status: true,
+        table: true,
+        createdAt: true,
+        createdId: true,
+        updatedAt: true,
+        updatedId: true,
+        items: {
+          select: {
+            id: true,
+            placedAt: true,
+            acceptedAt: true,
+            completedAt: true,
+            scheduledAt: true,
+            rejectedAt: true,
+            rejected: true,
+          },
+        },
+        createdBy: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+        updatedBy: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
   },
 
   findManyOpenByStoreSlug: async (slug: string) => {

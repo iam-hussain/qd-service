@@ -14,7 +14,7 @@ export const orderRouter: Router = (() => {
     validateAccess('SIGN_STORE'),
     validateRequest(GetOrdersReqSchema),
     async (req: Request, res: Response) => {
-      const serviceResponse = await orderService.orders(req.context.store.slug, req.params as any);
+      const serviceResponse = await orderService.orders(req.context.store.slug, req.query as any);
       handleServiceResponse(serviceResponse, res);
     }
   );
