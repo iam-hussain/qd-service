@@ -1,0 +1,346 @@
+// Improved Prisma Schema with Flexibility and Expandability
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Composite Types for Reusability
+type Address {
+  street  String
+  city    String
+  state   String
+  zipCode String
+  country String
+}
+
+type ContactInfo {
+  email String?
+  phone String?
+}
+
+// User Model
+model User {
+  id                 String          @id @default(uuid()) @map("user_id")
+  shortId            String          @unique @map("short_id")
+  type               USER_TYPE       @default(CUSTOMER)
+  firstName          String          @map("first_name")
+  lastName           String?         @map("last_name")
+  email              String?         @unique
+  emailVerified      Boolean         @default(false) @map("email_verified")
+  phone              String?         @unique
+  phoneVerified      Boolean         @default(false) @map("phone_verified")
+  username           String          @unique @default(uuid())
+  usernameAdded      Boolean         @default(false) @map("username_added")
+  password           String?
+  passwordAdded      Boolean         @default(false) @map("password_added")
+  salt               String?
+  address            Address?
+  image              Json?
+  createdAt          DateTime        @default(now()) @map("created_at")
+  updatedAt          DateTime        @updatedAt @map("updated_at")
+  connections        UsersOnStores[]
+  orders             Order[]         @relation("UserOrders")
+  bills              Bill[]          @relation("UserBills")
+  ordersCreated      Order[]         @relation("OrdersCreatedBy")
+  ordersUpdated      Order[]         @relation("OrdersUpdatedBy")
+  itemsCreated       Item[]          @relation("ItemsCreatedBy")
+  itemsUpdated       Item[]          @relation("ItemsUpdatedBy")
+  billsCreated       Bill[]          @relation("BillsCreatedBy")
+  productsDisabled   Product[]       @relation("ProductsDisabledBy")
+  tokensCreated      Token[]         @relation("TokensCreatedBy")
+  tokensUpdated      Token[]         @relation("TokensUpdatedBy")
+  billedItemsCreated BilledItem[]    @relation("BilledItemsCreatedBy")
+  billedItemsUpdated BilledItem[]    @relation("BilledItemsUpdatedBy")
+
+  @@unique([type, username])
+}
+
+enum USER_TYPE {
+  CUSTOMER
+  SELLER
+}
+
+// Store Model
+model Store {
+  id           String          @id @default(uuid()) @map("store_id")
+  shortId      String          @unique @map("short_id")
+  slug         String          @unique
+  prefix       String          @unique
+  name         String
+  deck         String?
+  contactInfo  ContactInfo?
+  address      Address?
+  printHead    Json[]
+  printDeck    Json[]
+  printFooter  Json[]
+  images       Json[]
+  tables       Json[]
+  taxes        Tax[]
+  fees         Fee[]
+  timezone     String          @default("Asia/Kolkata") @map("tz")
+  extra        Json            @default("{}")
+  featureFlags Json            @default("{}") @map("feature_flags")
+  connections  UsersOnStores[]
+  createdAt    DateTime        @default(now()) @map("created_at")
+  updatedAt    DateTime        @updatedAt @map("updated_at")
+  categories   Category[]
+  products     Product[]
+  orders       Order[]
+  bills        Bill[]
+  tokens       Token[]
+}
+
+// UsersOnStores Model
+model UsersOnStores {
+  roles      Json[]
+  userId     String
+  storeId    String
+  originated Boolean  @default(false)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  user       User     @relation(fields: [userId], references: [id])
+  store      Store    @relation(fields: [storeId], references: [id])
+
+  @@id([storeId, userId])
+}
+
+// Category Model
+model Category {
+  id              String        @id @default(uuid()) @map("category_id")
+  shortId         String        @unique @map("short_id")
+  name            String
+  deck            String?
+  position        Int           @default(0)
+  image           Json?
+  type            CATEGORY_TYPE @default(DEFAULT)
+  storeId         String
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  products        Product[]     @relation("CategoryProducts")
+  kitchenProducts Product[]     @relation("CategoryKitchenProducts")
+  store           Store         @relation(fields: [storeId], references: [id])
+  tokens          Token[]
+}
+
+enum CATEGORY_TYPE {
+  DEFAULT
+  KITCHEN
+}
+
+// Product Model
+model Product {
+  id                String       @id @default(uuid()) @map("product_id")
+  shortId           String       @unique @map("short_id")
+  name              String
+  deck              String?
+  price             Float        @default(0)
+  type              PRODUCT_TYPE @default(NON_VEG)
+  images            Json[]
+  storeId           String
+  categoryId        String
+  kitchenCategoryId String?
+  disabledByUserId  String?
+  disabledAt        DateTime?
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
+  items             Item[]
+  store             Store        @relation(fields: [storeId], references: [id])
+  category          Category     @relation("CategoryProducts", fields: [categoryId], references: [id])
+  kitchenCategory   Category?    @relation("CategoryKitchenProducts", fields: [kitchenCategoryId], references: [id])
+  disabledBy        User?        @relation("ProductsDisabledBy", fields: [disabledByUserId], references: [id])
+
+  @@map("products")
+}
+
+enum PRODUCT_TYPE {
+  VEG
+  NON_VEG
+  VEGAN
+}
+
+// Order Model
+model Order {
+  id          String       @id @default(uuid()) @map("order_id")
+  shortId     String       @unique @map("short_id")
+  type        ORDER_TYPE   @default(TAKE_AWAY)
+  status      ORDER_STATUS @default(DRAFT)
+  note        String?
+  table       Json         @default("{}")
+  taxes       Tax[]
+  fees        Fee[]
+  extra       Json         @default("{}")
+  completedAt DateTime?
+  deliveredAt DateTime?
+  customerId  String?
+  createdById String?
+  updatedById String?
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  storeId     String
+  items       Item[]
+  billId      String?
+  tokens      Token[]
+  customer    User?        @relation("UserOrders", fields: [customerId], references: [id])
+  createdBy   User?        @relation("OrdersCreatedBy", fields: [createdById], references: [id])
+  updatedBy   User?        @relation("OrdersUpdatedBy", fields: [updatedById], references: [id])
+  store       Store        @relation(fields: [storeId], references: [id])
+  bill        Bill?        @relation(fields: [billId], references: [id])
+
+  @@unique([shortId, storeId])
+}
+
+enum ORDER_TYPE {
+  DINING
+  TAKE_AWAY
+  PICK_UP
+  DELIVERY
+  PLATFORM
+}
+
+enum ORDER_STATUS {
+  DRAFT
+  IN_PROGRESS
+  COMPLETED
+  DELIVERY_PENDING
+  DELIVERED
+}
+
+// Item Model
+model Item {
+  id          String       @id @default(uuid()) @map("item_id")
+  title       String?
+  note        String?
+  type        PRODUCT_TYPE @default(NON_VEG)
+  price       Float        @default(0)
+  quantity    Int          @default(0)
+  total       Float        @default(0)
+  position    Int          @default(0)
+  scheduledAt DateTime?
+  placedAt    DateTime?
+  acceptedAt  DateTime?
+  completedAt DateTime?
+  rejectedAt  DateTime?
+  rejected    Boolean      @default(false)
+  productId   String
+  orderId     String?
+  tokenId     String?
+  createdById String?
+  updatedById String?
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  billedItems BilledItem[]
+  product     Product      @relation(fields: [productId], references: [id])
+  order       Order?       @relation(fields: [orderId], references: [id])
+  token       Token?       @relation(fields: [tokenId], references: [id])
+  createdBy   User?        @relation("ItemsCreatedBy", fields: [createdById], references: [id])
+  updatedBy   User?        @relation("ItemsUpdatedBy", fields: [updatedById], references: [id])
+}
+
+// Token Model
+model Token {
+  id                String    @id @default(uuid()) @map("token_id")
+  note              String?
+  shortId           String    @unique @map("short_id")
+  printedAt         DateTime?
+  placedAt          DateTime  @default(now()) @map("placed_at")
+  completedAt       DateTime?
+  scheduledAt       DateTime?
+  orderId           String?
+  kitchenCategoryId String?
+  storeId           String
+  createdById       String?
+  updatedById       String?
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  items             Item[]
+  order             Order?    @relation(fields: [orderId], references: [id])
+  kitchenCategory   Category? @relation(fields: [kitchenCategoryId], references: [id])
+  store             Store     @relation(fields: [storeId], references: [id])
+  createdBy         User?     @relation("TokensCreatedBy", fields: [createdById], references: [id])
+  updatedBy         User?     @relation("TokensUpdatedBy", fields: [updatedById], references: [id])
+
+  @@unique([shortId, storeId])
+}
+
+// Bill Model
+model Bill {
+  id          String       @id @default(uuid()) @map("bill_id")
+  shortId     String       @unique @map("short_id")
+  version     Int          @default(0)
+  type        ORDER_TYPE   @default(TAKE_AWAY)
+  note        String?
+  table       Json?
+  taxes       Tax[]
+  fees        Fee[]
+  extra       Json
+  totalItems  Float        @default(0) @map("total_items")
+  totalTaxes  Float        @default(0) @map("total_taxes")
+  totalFees   Float        @default(0) @map("total_fees")
+  subTotal    Float        @default(0) @map("sub_total")
+  grandTotal  Float        @default(0) @map("grand_total")
+  printedAt   DateTime?
+  paidAt      DateTime?
+  paidWith    BILL_PAID_BY @default(WALLET)
+  billedItems BilledItem[]
+  customerId  String?
+  billerId    String?
+  orderId     String       @unique
+  storeId     String
+  deleted     Boolean      @default(false)
+  deletedAt   DateTime?
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  customer    User?        @relation("UserBills", fields: [customerId], references: [id])
+  biller      User?        @relation("BillsCreatedBy", fields: [billerId], references: [id])
+  order       Order        @relation(fields: [orderId], references: [id])
+  store       Store        @relation(fields: [storeId], references: [id])
+
+  @@unique([storeId, shortId, version])
+}
+
+enum BILL_PAID_BY {
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+  UPI
+  WALLET
+  DUE
+}
+
+// BilledItem Model
+model BilledItem {
+  id          String       @id @default(uuid()) @map("billed_item_id")
+  title       String?
+  note        String?
+  type        PRODUCT_TYPE @default(NON_VEG)
+  price       Float        @default(0)
+  quantity    Int          @default(0)
+  total       Float        @default(0)
+  itemId      String
+  billId      String
+  createdById String?
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedById String?
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  item        Item         @relation(fields: [itemId], references: [id])
+  bill        Bill         @relation(fields: [billId], references: [id])
+  createdBy   User?        @relation("BilledItemsCreatedBy", fields: [createdById], references: [id])
+  updatedBy   User?        @relation("BilledItemsUpdatedBy", fields: [updatedById], references: [id])
+}
+
+// Additional Types
+type Tax {
+  name   String
+  rate   Float
+  amount Float
+}
+
+type Fee {
+  name   String
+  amount Float
+}
