@@ -1,4 +1,4 @@
-import { SignInSchemaType, validationErrorResponse } from '@iam-hussain/qd-copilot';
+import { SignInSchemaType, createValidationErrorResponse } from '@iam-hussain/qd-copilot';
 import { StatusCodes } from 'http-status-codes';
 
 import { userRepository } from '@/api/user/repository';
@@ -15,11 +15,11 @@ import { userTransformer } from '../user/transformer';
 export const authService = {
   me: async (userID: string) => {
     try {
-      const user = await userRepository.findById(userID);
+      const user = await userRepository.findByIdWithStore(userID);
       if (!user) {
         throw new Error('INVALID');
       }
-      return userTransformer.userPublic(user);
+      return userTransformer.userPublicWithStore(user);
     } catch (ex) {
       const errorMessage = `Error finding user data for ${userID}:, ${(ex as Error).message}`;
       logger.error(errorMessage);
@@ -31,16 +31,16 @@ export const authService = {
     try {
       const user = await userRepository.findByEmail(input.email.toLowerCase());
       if (!user) {
-        return validationErrorResponse('email', 'user_not_exist');
+        return createValidationErrorResponse('email', 'user_not_exist');
       }
 
       if (!user.password || !user.salt) {
-        return validationErrorResponse('password', 'password_not_added');
+        return createValidationErrorResponse('password', 'password_not_added');
       }
       const isMatching = hash.verify(input.password, user.password, user.salt);
 
       if (!isMatching) {
-        return validationErrorResponse('password', 'password_incorrect');
+        return createValidationErrorResponse('password', 'password_incorrect');
       }
 
       const tokenData: JWT_OBJECT = {

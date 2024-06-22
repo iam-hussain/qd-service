@@ -15,4 +15,25 @@ export const userRepository = {
       },
     });
   },
+  findByIdWithStore: async (id: string) => {
+    return database.user.findFirst({
+      where: {
+        id,
+      },
+      include: {
+        connections: {
+          select: {
+            store: {
+              select: {
+                slug: true,
+                shortId: true,
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  },
 };
